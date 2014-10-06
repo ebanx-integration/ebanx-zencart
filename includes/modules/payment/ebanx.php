@@ -3,6 +3,9 @@
 
 require_once 'ebanx/ebanx-php-master/src/autoload.php';
 
+ini_set('display_errors', -1);
+error_reporting(E_ALL ^ E_NOTICE);
+
 //require_once(IS_ADMIN_FLAG === true ? DIR_FS_CATALOG_MODULES : DIR_WS_MODULES)
 class ebanx extends base {
 
@@ -26,12 +29,14 @@ class ebanx extends base {
       //   }
       // }
 
-
       if (is_object($order)) $this->update_status();
 
-       $this->email_footer = MODULE_PAYMENT_BEBANX_TEXT_EMAIL_FOOTER;
-=======
+       //$this->email_footer = MODULE_PAYMENT_BEBANX_TEXT_EMAIL_FOOTER;
+
       // if (is_object($order)) $this->update_status();
+
+      // $this->email_footer = MODULE_PAYMENT_BEBANX_TEXT_EMAIL_FOOTER;
+
     }
 
 // class methods
@@ -67,15 +72,58 @@ class ebanx extends base {
 
       //global $order;
 
-      global $order;
+  global $order;
 
-      // $fields = array();
-      // $fields[] = ('title' => 'EITA',
-      //              'field' => zen_draw_input_field('email_address', $account->fields['customers_email_address'], 'id="email-address"')
-      //              );
+      for ($i=1; $i<13; $i++) {
+        $expires_month[] = array('id' => sprintf('%02d', $i), 'text' => strftime('%B',mktime(0,0,0,$i,1,2000)));
+      }
+
+      $today = getdate();
+      for ($i=$today['year']; $i < $today['year']+10; $i++) {
+        $expires_year[] = array('id' => strftime('%y',mktime(0,0,0,1,1,$i)), 'text' => strftime('%Y',mktime(0,0,0,1,1,$i)));
+      }
+      $onFocus = ' onfocus="methodSelect(\'pmt-' . $this->code . '\')"';
+
+      $fieldsArray = array();
+
+      $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CREDIT_CARD_OWNER,
+                             'field' => zen_draw_input_field('plugnpay_api_cc_owner', $order->billing['firstname'] . ' ' . $order->billing['lastname'],
+                             'id="'.$this->code.'-cc-owner"'. $onFocus),
+                             'tag' => $this->code.'-cc-owner');
+      $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CREDIT_CARD_NUMBER,
+                             'field' => zen_draw_input_field('plugnpay_api_cc_number', '',
+                             'id="'.$this->code.'-cc-number"' . $onFocus),
+                             'tag' => $this->code.'-cc-number');
+      $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CREDIT_CARD_EXPIRES,
+                             'field' => zen_draw_pull_down_menu('plugnpay_api_cc_expires_month', $expires_month, '',
+                 'id="'.$this->code.'-cc-expires-month"' . $onFocus) . '&nbsp;' . zen_draw_pull_down_menu('plugnpay_api_cc_expires_year', $expires_year, '',
+                             'id="'.$this->code.'-cc-expires-year"' . $onFocus),
+                             'tag' => $this->code.'-cc-expires-month');
+
+     
+      $fieldsArray[]= array('title' => MODULE_PAYMENT_EBANX_TEXT_CVV,
+                             'field' => zen_draw_input_field('plugnpay_api_cc_cvv','', 'size="4", maxlength="4" ' .
+                             'id="'.$this->code.'-cc-cvv"' . $onFocus) . ' ' . '<a href="javascript:popupWindow(\'' . zen_href_link(FILENAME_POPUP_CVV_HELP) . '\')">' . MODULE_PAYMENT_PLUGNPAY_API_TEXT_POPUP_CVV_LINK . '</a>',
+                             'tag' => $this->code.'-cc-cvv');
+      
+
+/*
+
+      if (MODULE_PAYMENT_EBANX_INSTALLMENTS == 'True') {
+        $installments
+        $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_INSTALLMENTS,
+                                       'field' => zen_draw_input_field('authorizenet_cc_cvv', '', 'size="4" maxlength="4"' . ' id="'.$this->code.'-cc-cvv"' . $onFocus . ' autocomplete="off"') . ' ' . '<a href="javascript:popupWindow(\'' . zen_href_link(FILENAME_POPUP_CVV_HELP) . '\')">' . MODULE_PAYMENT_AUTHORIZENET_TEXT_POPUP_CVV_LINK . '</a>',
+                                       'tag' => $this->code.'-cc-cvv');
+      } */
+
+            $selection = array('id' => $this->code,
+                         'module' => MODULE_PAYMENT_EBANX_TEXT_CATALOG_TITLE,
+                         'fields' => $fieldsArray);
 
 
-      return array('id' => $this->code, 'module' => $this->title); //FUNCIONA
+      return $selection;
+
+      //return array('id' => $this->code, 'module' => $this->title); //FUNCIONA
 
 
     }
