@@ -3,6 +3,8 @@
 
 require_once 'ebanx/ebanx-php-master/src/autoload.php';
 
+ini_set('display_errors', -1);
+error_reporting(E_ALL ^ E_NOTICE);
 
 //require_once(IS_ADMIN_FLAG === true ? DIR_FS_CATALOG_MODULES : DIR_WS_MODULES)
 class ebanx extends base {
