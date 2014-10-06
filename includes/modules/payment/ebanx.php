@@ -31,11 +31,11 @@ class ebanx extends base {
 
       if (is_object($order)) $this->update_status();
 
-<<<<<<< HEAD
+
        //$this->email_footer = MODULE_PAYMENT_BEBANX_TEXT_EMAIL_FOOTER;
-=======
+
        $this->email_footer = MODULE_PAYMENT_BEBANX_TEXT_EMAIL_FOOTER;
->>>>>>> 9ce995bab387fd43e93c6e12f8e48fc764ef6643
+
 
       // if (is_object($order)) $this->update_status();
 
@@ -75,8 +75,7 @@ class ebanx extends base {
     function selection() {
 
       //global $order;
-<<<<<<< HEAD
-=======
+
 
       global $order;
 
@@ -84,7 +83,7 @@ class ebanx extends base {
       // $fields[] = ('title' => 'EITA',
       //              'field' => zen_draw_input_field('email_address', $account->fields['customers_email_address'], 'id="email-address"')
       //              );
->>>>>>> 9ce995bab387fd43e93c6e12f8e48fc764ef6643
+
 
   global $order;
 
