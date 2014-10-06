@@ -1,10 +1,9 @@
 <?php
 
-<<<<<<< HEAD
+
 require_once 'ebanx/ebanx-php-master/src/autoload.php';
-=======
-require_once(DIR_WS_MODULES) . '/payment/ebanx/ebanx-php-master/src/autoload.php';
->>>>>>> 907a771f5e8f0ecf9f5d6c94b5411db60a89cb4e
+
+
 //require_once(IS_ADMIN_FLAG === true ? DIR_FS_CATALOG_MODULES : DIR_WS_MODULES)
 class ebanx extends base {
 
@@ -28,15 +27,14 @@ class ebanx extends base {
       //   }
       // }
 
-<<<<<<< HEAD
       if (is_object($order)) $this->update_status();
 
        $this->email_footer = MODULE_PAYMENT_BEBANX_TEXT_EMAIL_FOOTER;
-=======
+
       // if (is_object($order)) $this->update_status();
 
       // $this->email_footer = MODULE_PAYMENT_BEBANX_TEXT_EMAIL_FOOTER;
->>>>>>> 907a771f5e8f0ecf9f5d6c94b5411db60a89cb4e
+
     }
 
 // class methods
@@ -69,11 +67,11 @@ class ebanx extends base {
     }
 
     function selection() {
-<<<<<<< HEAD
+
       //global $order;
-=======
+
       global $order;
->>>>>>> 907a771f5e8f0ecf9f5d6c94b5411db60a89cb4e
+
       // $fields = array();
       // $fields[] = ('title' => 'EITA',
       //              'field' => zen_draw_input_field('email_address', $account->fields['customers_email_address'], 'id="email-address"')
