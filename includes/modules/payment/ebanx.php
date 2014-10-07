@@ -10,6 +10,7 @@ error_reporting(E_ALL ^ E_NOTICE);
 class ebanx extends base {
 
     var $code, $title, $description, $enabled, $payment;
+    //var $installments = array();
 
 // class constructor
     function ebanx() {
@@ -29,13 +30,13 @@ class ebanx extends base {
       //   }
       // }
 
+      if(MODULE_PAYMENT_EBANX_INSTALLMENTS == 'True'){
+        $this->num_installments = MODULE_PAYMENT_EBANX_MAXINSTALLMENTS;
+      }
+
       if (is_object($order)) $this->update_status();
 
-
        //$this->email_footer = MODULE_PAYMENT_BEBANX_TEXT_EMAIL_FOOTER;
-
-       $this->email_footer = MODULE_PAYMENT_BEBANX_TEXT_EMAIL_FOOTER;
-
 
       // if (is_object($order)) $this->update_status();
 
@@ -76,15 +77,6 @@ class ebanx extends base {
 
       //global $order;
 
-
-      global $order;
-
-      // $fields = array();
-      // $fields[] = ('title' => 'EITA',
-      //              'field' => zen_draw_input_field('email_address', $account->fields['customers_email_address'], 'id="email-address"')
-      //              );
-
-
   global $order;
 
       for ($i=1; $i<13; $i++) {
@@ -100,40 +92,56 @@ class ebanx extends base {
       $fieldsArray = array();
 
       $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CREDIT_CARD_OWNER,
-                             'field' => zen_draw_input_field('plugnpay_api_cc_owner', $order->billing['firstname'] . ' ' . $order->billing['lastname'],
+                             'field' => zen_draw_input_field('ebanx_cc_owner', $order->billing['firstname'] . ' ' . $order->billing['lastname'],
                              'id="'.$this->code.'-cc-owner"'. $onFocus),
                              'tag' => $this->code.'-cc-owner');
       $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CREDIT_CARD_NUMBER,
-                             'field' => zen_draw_input_field('plugnpay_api_cc_number', '',
+                             'field' => zen_draw_input_field('ebanx_cc_number', '',
                              'id="'.$this->code.'-cc-number"' . $onFocus),
                              'tag' => $this->code.'-cc-number');
       $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CREDIT_CARD_EXPIRES,
-                             'field' => zen_draw_pull_down_menu('plugnpay_api_cc_expires_month', $expires_month, '',
-                 'id="'.$this->code.'-cc-expires-month"' . $onFocus) . '&nbsp;' . zen_draw_pull_down_menu('plugnpay_api_cc_expires_year', $expires_year, '',
+                             'field' => zen_draw_pull_down_menu('ebanx_cc_expires_month', $expires_month, '',
+                 'id="'.$this->code.'-cc-expires-month"' . $onFocus) . '&nbsp;' . zen_draw_pull_down_menu('ebanx_cc_expires_year', $expires_year, '',
                              'id="'.$this->code.'-cc-expires-year"' . $onFocus),
                              'tag' => $this->code.'-cc-expires-month');
 
      
       $fieldsArray[]= array('title' => MODULE_PAYMENT_EBANX_TEXT_CVV,
-                             'field' => zen_draw_input_field('plugnpay_api_cc_cvv','', 'size="4", maxlength="4" ' .
-                             'id="'.$this->code.'-cc-cvv"' . $onFocus) . ' ' . '<a href="javascript:popupWindow(\'' . zen_href_link(FILENAME_POPUP_CVV_HELP) . '\')">' . MODULE_PAYMENT_PLUGNPAY_API_TEXT_POPUP_CVV_LINK . '</a>',
+                             'field' => zen_draw_input_field('ebanx_cc_cvv','', 'size="4", maxlength="4" ' .
+                             'id="'.$this->code.'-cc-cvv"' . $onFocus) . ' ' . '<a href="javascript:popupWindow(\'' . zen_href_link(FILENAME_POPUP_CVV_HELP) . '\')">' . MODULE_PAYMENT_EBANX_TEXT_POPUP_CVV_LINK. '</a>',
                              'tag' => $this->code.'-cc-cvv');
+                      
+                   //array('title' => MODULE_PAYMENT_AUTHORIZENET_TEXT_CREDIT_CARD_EXPIRES,
+
       
 
-/*
 
       if (MODULE_PAYMENT_EBANX_INSTALLMENTS == 'True') {
-        $installments
+
+        for ($i=0; $i < $this->num_installments; $i++) {
+
+        
+          $installments[$i] = array('id' => $i+1, 'text' => $i+1 );   //sprintf('%02d', $i)
+        
+      }
+
+
+        
+
+
         $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_INSTALLMENTS,
-                                       'field' => zen_draw_input_field('authorizenet_cc_cvv', '', 'size="4" maxlength="4"' . ' id="'.$this->code.'-cc-cvv"' . $onFocus . ' autocomplete="off"') . ' ' . '<a href="javascript:popupWindow(\'' . zen_href_link(FILENAME_POPUP_CVV_HELP) . '\')">' . MODULE_PAYMENT_AUTHORIZENET_TEXT_POPUP_CVV_LINK . '</a>',
-                                       'tag' => $this->code.'-cc-cvv');
-      } */
+                                               'field' => zen_draw_pull_down_menu('ebanx_installments', $installments, '', 'id="'.$this->code.'-ebanx-cc-installments"' .  $onFocus . ' autocomplete="on"'),
+                                               'tag' => $this->code.'-ebanx-cc-installments');
+      } 
+
+      
 
             $selection = array('id' => $this->code,
                          'module' => MODULE_PAYMENT_EBANX_TEXT_CATALOG_TITLE,
                          'fields' => $fieldsArray);
 
-
+  
+      
       return $selection;
 
       //return array('id' => $this->code, 'module' => $this->title); //FUNCIONA
@@ -198,8 +206,24 @@ class ebanx extends base {
     }
 
     function confirmation() {
+    global $order;
 
-      return false;
+    $fieldsArray = array();
+
+    $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CREDIT_CARD_OWNER,
+                                               'field' => $_POST['ebanx_cc_owner']);
+
+
+    if (isset($_POST['ebanx_installments'])) {
+          $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_INSTALLMENTS,
+                                               'field' => $_POST['ebanx_installments']);
+    }
+
+        $confirmation = array(//'title' => MODULE_PAYMENT_PLUGNPAY_API_TEXT_CATALOG_TITLE,
+                          'fields' => $fieldsArray);
+
+    return $confirmation;
+      
     }
 
     function process_button() {
