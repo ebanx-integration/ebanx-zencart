@@ -2,7 +2,7 @@
 
 
 require_once 'ebanx/ebanx-php-master/src/autoload.php';
-setlocale(LC_ALL, "pt_BR", "pt_BR.iso-8859-1", "pt_BR.utf-8", "portuguese");
+//setlocale(LC_ALL, "pt_BR", "pt_BR.iso-8859-1", "pt_BR.utf-8", "portuguese");
 
 ini_set('display_errors', -1);
 error_reporting(E_ALL ^ E_NOTICE);
@@ -266,7 +266,7 @@ class ebanx extends base {
     }
 
     function process_button() {
-/*
+
     $process_button_string = zen_draw_hidden_field('cc_owner', $_POST['ebanx_cc_owner']) .
     zen_draw_hidden_field('cc_expires', $this->cc_expiry_month . substr($this->cc_expiry_year, -2)) .
     //zen_draw_hidden_field('cc_type', $this->cc_card_type) .
@@ -280,20 +280,23 @@ class ebanx extends base {
     return $process_button_string;
 
 
-  */
+  
 
-      return false;
+      //return false;
     }
 
     function before_process() {
       global $_POST,  $order, $sendto, $currency, $charge,$db, $messageStack;
-      /*
-                // Calculate the next expected order id
+
+
+      
+        // Calculate the next expected order id
         \Ebanx\Config::set(array(
             'integrationKey' => MODULE_PAYMENT_EBANX_INTEGRATIONKEY
            
            ,'testMode'       => MODULE_PAYMENT_EBANX_TESTMODE
         ));
+
 
           $last_order_id = $db->Execute("select * from " . TABLE_ORDERS . " order by orders_id desc limit 1");
           $new_order_id = $last_order_id->fields['orders_id'];
@@ -310,7 +313,14 @@ class ebanx extends base {
                                    ,'name'  => $order->billing['firstname'] . $order->billing['lastname']
                                    ,'email' => $order->customer['email_address']
                                    ,'birth_date' => $order->customer['birth_date']
-                                   ,'document'   => $_POST[]
+                                   ,'document'   => $_POST['customer_cpf']
+                                   ,'city'       => $order->billing['city']
+                                   ,'state'      => $order->billing['state']
+                                   ,'zipcode'    => $order->billing['postcode']
+                                   ,'country'    => $order->billing['country']['title']
+                                   ,'phone_number' => $order->customer['telephone']
+                                   ,'address'      => $order->billing['street_address']
+                                   ,
 
           )
 
