@@ -2,6 +2,7 @@
 
 
 require_once 'ebanx/ebanx-php-master/src/autoload.php';
+setlocale(LC_ALL, "pt_BR", "pt_BR.iso-8859-1", "pt_BR.utf-8", "portuguese");
 
 ini_set('display_errors', -1);
 error_reporting(E_ALL ^ E_NOTICE);
@@ -42,6 +43,8 @@ class ebanx extends base {
 
       // $this->email_footer = MODULE_PAYMENT_BEBANX_TEXT_EMAIL_FOOTER;
 
+
+
     }
 
 // class methods
@@ -80,7 +83,7 @@ class ebanx extends base {
   global $order;
 
       for ($i=1; $i<13; $i++) {
-        $expires_month[] = array('id' => sprintf('%02d', $i), 'text' => strftime('%B',mktime(0,0,0,$i,1,2000)));
+        $expires_month[] = array('id' => sprintf('%02d', $i), 'text' => strftime('%m',mktime(0,0,0,$i,1,2000)));
       }
 
       $today = getdate();
@@ -90,6 +93,11 @@ class ebanx extends base {
       $onFocus = ' onfocus="methodSelect(\'pmt-' . $this->code . '\')"';
 
       $fieldsArray = array();
+
+      $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CUSTOMER_CPF,
+                             'field' => zen_draw_input_field('ebanx_cpf', '',
+                             'id="'.$this->code.'-cpf"'. $onFocus),
+                             'tag' => $this->code.'-cpf');
 
       $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CREDIT_CARD_OWNER,
                              'field' => zen_draw_input_field('ebanx_cc_owner', $order->billing['firstname'] . ' ' . $order->billing['lastname'],
@@ -201,9 +209,37 @@ class ebanx extends base {
     return $selection;*/
   
 
-    function pre_confirmation_check() {
-      return false;
+  function pre_confirmation_check() {
+    global $db, $_POST, $messageStack;
+    include(DIR_WS_CLASSES . 'cc_validation.php');
+
+    $cc_validation = new cc_validation();
+    $result = $cc_validation->validate($_POST['ebanx_cc_number'], $_POST['ebanx_cc_expires_month'], $_POST['ebanx_cc_expires_year'], $_POST['ebanx_cc_cvv']);
+    $error = '';
+    switch ($result) {
+      case -1:
+        $error = sprintf(TEXT_CCVAL_ERROR_UNKNOWN_CARD, substr($cc_validation->cc_number, 0, 4));
+        break;
+      case -2:
+      case -3:
+      case -4:
+        $error = TEXT_CCVAL_ERROR_INVALID_DATE;
+        break;
+      case false:
+        $error = TEXT_CCVAL_ERROR_INVALID_NUMBER;
+        break;
     }
+        if (($result == false) || ($result < 1)) {
+      $payment_error_return = 'payment_error=' . $this->code . '&ebanx_cc_owner=' . urlencode($_POST['ebanx_cc_owner']) . '&ebanx_cc_expires_month=' . $_POST['ebanx_cc_expires_month'] . '&ebanx_cc_expires_year=' . $_POST['ebanx_cc_expires_year'];
+      $messageStack->add_session('checkout_payment', $error . '<!-- ['.$this->code.'] -->', 'error');
+      zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
+    }
+
+    //$this->cc_card_type = $cc_validation->cc_type;
+    $this->cc_card_number = $cc_validation->cc_number;
+    $this->cc_expiry_month = $cc_validation->cc_expiry_month;
+    $this->cc_expiry_year = $cc_validation->cc_expiry_year;
+  }
 
     function confirmation() {
     global $order;
@@ -212,6 +248,9 @@ class ebanx extends base {
 
     $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CREDIT_CARD_OWNER,
                                                'field' => $_POST['ebanx_cc_owner']);
+
+    $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CREDIT_CARD_NUMBER,
+                           'field' => substr($this->cc_card_number, 0, 4) . str_repeat('X', (strlen($this->cc_card_number) - 8)) . substr($this->cc_card_number, -4));
 
 
     if (isset($_POST['ebanx_installments'])) {
@@ -227,12 +266,59 @@ class ebanx extends base {
     }
 
     function process_button() {
+/*
+    $process_button_string = zen_draw_hidden_field('cc_owner', $_POST['ebanx_cc_owner']) .
+    zen_draw_hidden_field('cc_expires', $this->cc_expiry_month . substr($this->cc_expiry_year, -2)) .
+    //zen_draw_hidden_field('cc_type', $this->cc_card_type) .
+    zen_draw_hidden_field('cc_number', $this->cc_card_number);
+    
+    $process_button_string .= zen_draw_hidden_field('cc_cvv', $_POST['ebanx_cc_cvv']);
+    $process_button_string .= zen_draw_hidden_field('customer_cpf', $_POST['ebanx_cpf']);
 
+    //$process_button_string .= zen_draw_hidden_field(zen_session_name(), zen_session_id());
+    echo $process_button_string;
+    return $process_button_string;
+
+
+  */
 
       return false;
     }
 
     function before_process() {
+      global $_POST,  $order, $sendto, $currency, $charge,$db, $messageStack;
+      /*
+                // Calculate the next expected order id
+        \Ebanx\Config::set(array(
+            'integrationKey' => MODULE_PAYMENT_EBANX_INTEGRATIONKEY
+           
+           ,'testMode'       => MODULE_PAYMENT_EBANX_TESTMODE
+        ));
+
+          $last_order_id = $db->Execute("select * from " . TABLE_ORDERS . " order by orders_id desc limit 1");
+          $new_order_id = $last_order_id->fields['orders_id'];
+          $new_order_id = ($new_order_id + 1);
+
+
+      $submit = array(
+         'integration_key' => MODULE_PAYMENT_EBANX_INTEGRATIONKEY
+        ,'operation'       => 'request'
+        ,'mode'            => 'full'
+        ,'payment'         => array(
+                                    'merchant_payment_code' => $new_order_id //. time()
+                                   ,'currency_code'         => $order->info['currency']
+                                   ,'name'  => $order->billing['firstname'] . $order->billing['lastname']
+                                   ,'email' => $order->customer['email_address']
+                                   ,'birth_date' => $order->customer['birth_date']
+                                   ,'document'   => $_POST[]
+
+          )
+
+
+        )    $this->cc_card_number = $cc_validation->cc_number;
+             $this->cc_expiry_month = $cc_validation->cc_expiry_month;
+              $this->cc_expiry_year = $cc_validation->cc_expiry_year;
+
 	/*
     	global $insert_id, $db, $order;
     	$address = $order->customer['email_address'].'-'.session_id();
