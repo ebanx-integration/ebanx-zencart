@@ -348,6 +348,18 @@ class ebanx extends base {
       // var_dump($new_order_id);
       // die;
 
+
+      if(isset($_POST['instalments']) &&  $_POST['instalments'] > '1')
+      {
+            $interestRate = floatval(MODULE_PAYMENT_EBANX_INSTALLMENTSRATE);
+            $submit['payment']['amount_total'] = ($order->info['total'] * (100 + $interestRate)) / 100.0;
+      }
+
+      // var_dump($submit['payment']['amount_total']);
+      // var_dump($order->info['total']);
+      // die;
+
+
       $submit = array(
          'integration_key' => MODULE_PAYMENT_EBANX_INTEGRATIONKEY
         ,'operation'       => 'request'
