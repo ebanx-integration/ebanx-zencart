@@ -234,23 +234,42 @@ class ebanx extends base {
       $messageStack->add_session('checkout_payment', $error . '<!-- ['.$this->code.'] -->', 'error');
       zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
     }
+      if (!$this->validaCPF($_POST['ebanx_cpf'])){
 
-    //$this->cc_card_type = $cc_validation->cc_type;
+      $payment_error_return = 'payment_error=' . $this->code . '&ebanx_cpf=' . $_POST['ebanx_cpf'];
+      $messageStack->add_session('checkout_payment', 'CPF Inválido!');
+      zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
+
+
+      }
+
+         
+
+    $this->cc_card_type = strtolower($cc_validation->cc_type);
     $this->cc_card_number = $cc_validation->cc_number;
     $this->cc_expiry_month = $cc_validation->cc_expiry_month;
     $this->cc_expiry_year = $cc_validation->cc_expiry_year;
   }
 
     function confirmation() {
+
+
     global $order;
 
+
+
     $fieldsArray = array();
+
+    $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CREDIT_CARD_TYPE,
+                                               'field' => $this->cc_card_type);
 
     $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CREDIT_CARD_OWNER,
                                                'field' => $_POST['ebanx_cc_owner']);
 
+
     $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CREDIT_CARD_NUMBER,
-                           'field' => substr($this->cc_card_number, 0, 4) . str_repeat('X', (strlen($this->cc_card_number) - 8)) . substr($this->cc_card_number, -4));
+                           'field' => substr($this->cc_card_number, 0, 0) . str_repeat('X', (strlen($this->cc_card_number) - 4)) . substr($this->cc_card_number, -4));
+                          //'field' => substr($this->cc_card_number, 0, 4) . str_repeat('X', (strlen($this->cc_card_number) - 8)) . substr($this->cc_card_number, -4));
 
 
     if (isset($_POST['ebanx_installments'])) {
@@ -266,17 +285,30 @@ class ebanx extends base {
     }
 
     function process_button() {
-
+    global $db;
+      //substr($this->cc_expiry_year, -2))
     $process_button_string = zen_draw_hidden_field('cc_owner', $_POST['ebanx_cc_owner']) .
-    zen_draw_hidden_field('cc_expires', $this->cc_expiry_month . substr($this->cc_expiry_year, -2)) .
+    zen_draw_hidden_field('cc_expires', $this->cc_expiry_month . '/' . $this->cc_expiry_year) .
     //zen_draw_hidden_field('cc_type', $this->cc_card_type) .
     zen_draw_hidden_field('cc_number', $this->cc_card_number);
     
     $process_button_string .= zen_draw_hidden_field('cc_cvv', $_POST['ebanx_cc_cvv']);
+    $process_button_string .= zen_draw_hidden_field('cc_type', $this->cc_card_type);
     $process_button_string .= zen_draw_hidden_field('customer_cpf', $_POST['ebanx_cpf']);
+    $process_button_string .= zen_draw_hidden_field('instalments', $_POST['ebanx_installments']);
 
     //$process_button_string .= zen_draw_hidden_field(zen_session_name(), zen_session_id());
-    echo $process_button_string;
+
+              $last_order_id = $db->Execute("select * from " . TABLE_ORDERS . " order by orders_id desc limit 1");
+              $new_order_id = $last_order_id->fields['orders_id'];
+              $new_order_id = ($new_order_id + 1);
+
+    $process_button_string .= zen_draw_hidden_field('order_id', $new_order_id);
+
+    //echo $process_button_string;
+
+
+
     return $process_button_string;
 
 
@@ -288,46 +320,103 @@ class ebanx extends base {
     function before_process() {
       global $_POST,  $order, $sendto, $currency, $charge,$db, $messageStack;
 
+            $streetNumber = preg_replace('/[\D]/', '', $order->billing['street_address']);
+            $streetNumber = ($streetNumber > 0) ? $streetNumber : '1';
+
 
       
-        // Calculate the next expected order id
+        
         \Ebanx\Config::set(array(
             'integrationKey' => MODULE_PAYMENT_EBANX_INTEGRATIONKEY
            
            ,'testMode'       => MODULE_PAYMENT_EBANX_TESTMODE
         ));
+        \Ebanx\Config::setDirectMode(true);
 
+      if($order->billing['country']['title'] == 'Brazil'){
+        $order->billing['country']['title'] = 'BR';
+      }
 
-          $last_order_id = $db->Execute("select * from " . TABLE_ORDERS . " order by orders_id desc limit 1");
-          $new_order_id = $last_order_id->fields['orders_id'];
-          $new_order_id = ($new_order_id + 1);
+      if($order->billing['country']['title'] == 'Peru'){
+        $order->billing['country']['title'] = 'PE';
+      }
 
+      $last_order_id = $db->Execute("select * from " . TABLE_ORDERS . " order by orders_id desc limit 1");
+      $new_order_id = $last_order_id->fields['orders_id'];
+      $new_order_id = ($new_order_id + 1);
+
+      // var_dump($new_order_id);
+      // die;
 
       $submit = array(
          'integration_key' => MODULE_PAYMENT_EBANX_INTEGRATIONKEY
         ,'operation'       => 'request'
         ,'mode'            => 'full'
         ,'payment'         => array(
-                                    'merchant_payment_code' => $new_order_id //. time()
+                                    'merchant_payment_code' => $new_order_id //. time() //
                                    ,'currency_code'         => $order->info['currency']
-                                   ,'name'  => $order->billing['firstname'] . $order->billing['lastname']
+                                   ,'name'  => $order->billing['firstname'] . ' ' . $order->billing['lastname']
                                    ,'email' => $order->customer['email_address']
-                                   ,'birth_date' => $order->customer['birth_date']
+                                   ,'birth_date' => '01/02/1993'
                                    ,'document'   => $_POST['customer_cpf']
                                    ,'city'       => $order->billing['city']
                                    ,'state'      => $order->billing['state']
                                    ,'zipcode'    => $order->billing['postcode']
+                                   ,'street_number' => $streetNumber
                                    ,'country'    => $order->billing['country']['title']
                                    ,'phone_number' => $order->customer['telephone']
                                    ,'address'      => $order->billing['street_address']
-                                   ,
+                                   ,'amount_total'       => $order->info['total']
+                                   ,'instalments'  => $_POST['instalments']
+                                   ,'payment_type_code' => $_POST['cc_type']
+                                   ,'creditcard'   => array(
+                                        'card_number'  => $_POST['cc_number']
+                                       ,'card_name'    => $_POST['cc_owner']
+                                       ,'card_due_date' => $_POST['cc_expires']
+                                       ,'card_cvv'      => $_POST['cc_cvv']
+                                       //,'auto_capture'  => true
+
+                                    )
 
           )
 
 
-        )    $this->cc_card_number = $cc_validation->cc_number;
-             $this->cc_expiry_month = $cc_validation->cc_expiry_month;
-              $this->cc_expiry_year = $cc_validation->cc_expiry_year;
+        );    
+
+             //  $this->cc_card_number = $cc_validation->cc_number;
+             // $this->cc_expiry_month = $cc_validation->cc_expiry_month;
+             //  $this->cc_expiry_year = $cc_validation->cc_expiry_year;
+              //http://localhost/zencart2/ebanx_notification.php
+              $callbackURL = zen_href_link('ebanx_notification.php', '', 'SSL', false, false, true);
+
+              
+              $response = \Ebanx\Ebanx::doRequest($submit);
+                                var_dump($response);
+                                
+                  
+                                  
+                                  
+              if ($response->status == 'SUCCESS')
+              {
+                  $cpf = $_POST['customer_cpf'];
+                  $hash = $response->payment->hash;
+                  $db->Execute("insert into ebanx_data (order_id, customers_cpf, hash) values ('" . $_POST['order_id'] . "', '" . $cpf . "', '" . $hash . "')");
+                   
+
+              }
+          
+
+              else
+              { 
+                        $payment_error_return = 'payment_error=' . $this->code ;//. '&ebanx_cpf=' . $_POST['ebanx_cpf'];
+                        $messageStack->add_session('checkout_payment', 'Ops! Deu algum erro.');
+                        zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
+
+              }
+
+       
+        
+
 
 	/*
     	global $insert_id, $db, $order;
@@ -348,7 +437,7 @@ class ebanx extends base {
 		$order->info['comments'] .= ' | Payment Address: '.$address.' | ';
 		*/
       //print_r('before');
-      return false;
+      
     }
 
     function after_process() {
@@ -384,8 +473,27 @@ class ebanx extends base {
     //   $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort order of display.', 'MODULE_PAYMENT_BITCOIN_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
     //   $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added) values ('Payment Zone', 'MODULE_PAYMENT_BITCOIN_ZONE', '0', 'If a zone is selected, only enable this payment method for that zone.', '6', '2', 'zen_get_zone_class_title', 'zen_cfg_pull_down_zone_classes(', now())");
     //   $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, use_function, date_added) values ('Set Order Status', 'MODULE_PAYMENT_BITCOIN_ORDER_STATUS_ID', '0', 'Set the status of orders made with this payment module to this value', '6', '0', 'zen_cfg_pull_down_order_statuses(', 'zen_get_order_status_name', now())");
-  
-   
+      $db->Execute("CREATE TABLE IF NOT EXISTS `".DB_PREFIX ."ebanx_data` (
+          `ebanx_id` INT( 11 ) NOT NULL  auto_increment,
+          `order_id` VARCHAR( 64 ) NOT NULL ,
+          `customers_cpf` VARCHAR( 64 ) NOT NULL ,
+           `hash` VARCHAR( 64 ) NOT NULL ,
+            PRIMARY KEY  (`ebanx_id`)
+          )   AUTO_INCREMENT=1 ;");
+ 
+      $check_query = $db->Execute("select orders_status_id from " . TABLE_ORDERS_STATUS . " where orders_status_name = 'Cancelled' limit 1");
+      if ($check_query->RecordCount() < 1) {
+          $status    = $db->Execute("select max(orders_status_id) as status_id from " . TABLE_ORDERS_STATUS);
+          $status_id = $status->fields['status_id'] + 1;
+          $languages = zen_get_languages();
+          foreach ($languages as $lang) {
+              $db->Execute("insert into " . TABLE_ORDERS_STATUS . " (orders_status_id, language_id, orders_status_name) values ('" . $status_id . "', '" . $lang['id'] . "', 'Cancelled')");
+          } //$languages as $lang
+      } else {
+          $status_id = $check_query->fields['orders_status_id'];
+      }
+
+
 
 
 		  $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable Ebanx', 'MODULE_PAYMENT_EBANX_STATUS', 'False', 'Do you want to accept EBANX payments?', '6', '1', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now())");
@@ -420,6 +528,34 @@ class ebanx extends base {
       return array('MODULE_PAYMENT_EBANX_STATUS', 'MODULE_PAYMENT_EBANX_INTEGRATIONKEY', 'MODULE_PAYMENT_EBANX_TESTMODE', 'MODULE_PAYMENT_EBANX_INSTALLMENTS', 'MODULE_PAYMENT_EBANX_MAXINSTALLMENTS', 'MODULE_PAYMENT_EBANX_INSTALLMENTSRATE', 'MODULE_PAYMENT_EBANX_BOLETO', 'MODULE_PAYMENT_EBANX_CCARD', 'MODULE_PAYMENT_EBANX_TEF', 'MODULE_PAYMENT_EBANX_ZONE');
     
     }
+
+    function validaCPF($cpf)
+    { // Verifiva se o número digitado contém todos os digitos
+        $cpf = str_pad(preg_replace('[^0-9]', '', $cpf), 11, '0', STR_PAD_LEFT);
+      
+      // Verifica se nenhuma das sequências abaixo foi digitada, caso seja, retorna falso
+        if (strlen($cpf) != 11 || $cpf == '00000000000' || $cpf == '11111111111' || $cpf == '22222222222' || $cpf == '33333333333' || $cpf == '44444444444' || $cpf == '55555555555' || $cpf == '66666666666' || $cpf == '77777777777' || $cpf == '88888888888' || $cpf == '99999999999')
+      {
+      return false;
+        }
+      else
+      {   // Calcula os números para verificar se o CPF é verdadeiro
+            for ($t = 9; $t < 11; $t++) {
+                for ($d = 0, $c = 0; $c < $t; $c++) {
+                    $d += $cpf{$c} * (($t + 1) - $c);
+                }
+     
+                $d = ((10 * $d) % 11) % 10;
+     
+                if ($cpf{$c} != $d) {
+                    return false;
+                }
+            }
+     
+            return true;
+        }
+    }
+
   }
  
- ?>
+ //
