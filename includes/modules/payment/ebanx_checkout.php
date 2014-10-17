@@ -54,34 +54,37 @@ class ebanx_checkout extends base {
     }
 
     function selection() {
+      global $order;
+      if($order->billing['country']['title'] == 'Brazil' || $order->billing['country']['title'] == 'Peru'){
+        
+      
+          $fieldsArray = array();
 
-      $fieldsArray = array();
+          // $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CUSTOMER_CPF,
+          //                        'field' => zen_draw_input_field('ebanxb_cpf', '',
+          //     20537924218                   'id="'.$this->code.'-cpf"'. $onFocus),
+          //                        'tag' => $this->code.'-cpf');
 
-      $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CUSTOMER_CPF,
-                             'field' => zen_draw_input_field('ebanxb_cpf', '',
-                             'id="'.$this->code.'-cpf"'. $onFocus),
-                             'tag' => $this->code.'-cpf');
-
-      $selection = array('id' => $this->code,
-             'module' => MODULE_PAYMENT_EBANX_CHECKOUT_TEXT_CATALOG_TITLE,
-             'fields' => $fieldsArray);
-
-
-      return $selection;
+          $selection = array('id' => $this->code,
+                 'module' => MODULE_PAYMENT_EBANX_CHECKOUT_TEXT_CATALOG_TITLE
+                 //,'fields' => $fieldsArray);
+                );
+      }
+          return $selection;
 
    
     }
   
     function pre_confirmation_check() {
-      global $db, $_POST, $messageStack;
+      // global $db, $_POST, $messageStack;
 
-      if (!$this->validaCPF($_POST['ebanxb_cpf'])){
+      // if (!$this->validaCPF($_POST['ebanxb_cpf'])){
 
-          $payment_error_return = 'payment_error=' . $this->code . '&ebanx_cpf=' . $_POST['ebanx_cpf'];
-          $messageStack->add_session('checkout_payment', 'CPF Inválido!');
-          zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
+      //     $payment_error_return = 'payment_error=' . $this->code . '&ebanx_cpf=' . $_POST['ebanx_cpf'];
+      //     $messageStack->add_session('checkout_payment', 'CPF Inválido!');
+      //     zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
 
-      }
+      // }
 
       return false;
     }
@@ -94,8 +97,9 @@ class ebanx_checkout extends base {
 
     function process_button() {
 
-        $process_button_string .= zen_draw_hidden_field('customerb_cpf', $_POST['ebanxb_cpf']);
-        return $process_button_string;
+        // $process_button_string .= zen_draw_hidden_field('customerb_cpf', $_POST['ebanxb_cpf']);
+        // return $process_button_string;
+        return false;
     }
 
     function before_process() {
@@ -137,14 +141,21 @@ class ebanx_checkout extends base {
         , 'payment_type_code' =>  '_all'
         , 'merchant_payment_code' => $new_order_id
         , 'country'           => $order->billing['country']['title']
-
+        //, 'cpf'          => $_POST['customerb_cpf']
+        //, 'document'          => $_POST['customerb_cpf']
+        , 'zipcode'           => $order->billing['postcode']
+        , 'phone_number'      => $order->customer['telephone']
       )); 
+
 
       $this->status = $request->status;
 
 
       if($this->status == 'SUCCESS'){
           $this->checkoutURL = $request->redirect_url;
+          
+          $hash = $request->payment->hash;
+          $db->Execute("insert into ebanx_data (order_id, customers_cpf, hash) values ('" . $new_order_id . "', '" . $_POST['customerb_cpf'] . "', '" . $hash . "')");
       }
 
       return false;
@@ -233,32 +244,5 @@ class ebanx_checkout extends base {
     
     }
   
- 
-    function validaCPF($cpf)
-    { // Verifiva se o número digitado contém todos os digitos
-        $cpf = str_pad(preg_replace('[^0-9]', '', $cpf), 11, '0', STR_PAD_LEFT);
-      
-      // Verifica se nenhuma das sequências abaixo foi digitada, caso seja, retorna falso
-        if (strlen($cpf) != 11 || $cpf == '00000000000' || $cpf == '11111111111' || $cpf == '22222222222' || $cpf == '33333333333' || $cpf == '44444444444' || $cpf == '55555555555' || $cpf == '66666666666' || $cpf == '77777777777' || $cpf == '88888888888' || $cpf == '99999999999')
-      {
-      return false;
-        }
-      else
-      {   // Calcula os números para verificar se o CPF é verdadeiro
-            for ($t = 9; $t < 11; $t++) {
-                for ($d = 0, $c = 0; $c < $t; $c++) {
-                    $d += $cpf{$c} * (($t + 1) - $c);
-                }
-     
-                $d = ((10 * $d) % 11) % 10;
-     
-                if ($cpf{$c} != $d) {
-                    return false;
-                }
-            }
-     
-            return true;
-        }
-    }
   }
  ?>

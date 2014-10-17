@@ -26,7 +26,7 @@ if ($response->status == 'SUCCESS')
 
     if($response->payment->status == 'CO')
     {   
-        $code = $response->payment->merchant_payment_code - 1;
+        $code = $response->payment->merchant_payment_code;
         $db->Execute('UPDATE ' . TABLE_ORDERS . ' SET orders_status = 2 WHERE orders_id = ' . $code);
         $db->Execute('UPDATE ' . TABLE_ORDERS_STATUS_HISTORY . ' SET orders_status_id = 2 WHERE orders_status_history_id = ' . $code);
         echo 'Payment CO';
