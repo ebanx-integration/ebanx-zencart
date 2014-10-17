@@ -1,10 +1,12 @@
 <?php
+ ini_set('display_errors', -1);
+ error_reporting(E_ALL ^ E_NOTICE);
+
 require('includes/application_top.php');
 require (DIR_WS_MODULES . 'payment/ebanx/ebanx-php-master/src/autoload.php');
 global $db;
 
- ini_set('display_errors', -1);
- error_reporting(E_ALL ^ E_NOTICE);
+
 
         \Ebanx\Config::set(array(
             'integrationKey' => MODULE_PAYMENT_EBANX_INTEGRATIONKEY
@@ -24,7 +26,7 @@ if ($response->status == 'SUCCESS')
 
     if($response->payment->status == 'CO')
     {   
-        $code = $response->payment->merchant_payment_code;
+        $code = $response->payment->merchant_payment_code - 1;
         $db->Execute('UPDATE ' . TABLE_ORDERS . ' SET orders_status = 2 WHERE orders_id = ' . $code);
         $db->Execute('UPDATE ' . TABLE_ORDERS_STATUS_HISTORY . ' SET orders_status_id = 2 WHERE orders_status_history_id = ' . $code);
         echo 'Payment CO';
