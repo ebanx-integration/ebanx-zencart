@@ -14,7 +14,7 @@ class ebanx extends base {
       $this->code = 'ebanx';
       $this->title = MODULE_PAYMENT_EBANX_TEXT_TITLE;
       $this->description = MODULE_PAYMENT_EBANX_TEXT_DESCRIPTION;
-      $this->sort_order = MODULE_PAYMENT_EBANX_SORT_ORDER;
+      //$this->sort_order = MODULE_PAYMENT_EBANX_SORT_ORDER;
       $this->enabled = ((MODULE_PAYMENT_EBANX_STATUS == 'True') ? true : false);
 
       if(MODULE_PAYMENT_EBANX_INSTALLMENTS == 'True'){
@@ -357,7 +357,7 @@ class ebanx extends base {
     }
 
     function install() {
-     
+      $integrationKey = 0;
       global $db, $messageStack;
       if (defined('MODULE_PAYMENT_EBANX_STATUS')) {
         $messageStack->add_session('Ebanx module already installed.', 'error');
@@ -385,19 +385,21 @@ class ebanx extends base {
           $status_id = $check_query->fields['orders_status_id'];
       }
 
-
+      $check_query = $db->Execute("select configuration_value from " . TABLE_CONFIGURATION . " c where c.configuration_key = 'MODULE_PAYMENT_EBANX_CHECKOUT_INTEGRATIONKEY'");
+      
+      if(isset($check_query))
+      {
+        $integrationKey = $check_query->fields['configuration_value'];
+      }
 
 
 		  $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable Ebanx', 'MODULE_PAYMENT_EBANX_STATUS', 'False', 'Do you want to accept EBANX payments?', '6', '1', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now())");
-		  $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Integration Key', 'MODULE_PAYMENT_EBANX_INTEGRATIONKEY', '', 'Your EBANX unique integration key', '6', '0', now())");
+		  $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Integration Key', 'MODULE_PAYMENT_EBANX_INTEGRATIONKEY', '". $integrationKey . "', 'Your EBANX unique integration key', '6', '0', now())");
 		  $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Test Mode', 'MODULE_PAYMENT_EBANX_TESTMODE', '', 'Test Mode?', '6', '0', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now())");
 		  $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Installments'   ,   'MODULE_PAYMENT_EBANX_INSTALLMENTS', '', 'Enable Installments?', '6', '0', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now())");
 		  $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Maximum Installments Enabled', 'MODULE_PAYMENT_EBANX_MAXINSTALLMENTS', '6', 'Maximum Installments Number', '6', '0',  now())");
 	   	$db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Installments rate (%)', 'MODULE_PAYMENT_EBANX_INSTALLMENTSRATE', '10',  'Installments Rate', '6',  '0', now())");
-	   	$db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable Boleto Method', 'MODULE_PAYMENT_EBANX_BOLETO', 'True',  'Enable Boleto Payment Method?', '6', '0',  'zen_cfg_select_option(array(\'True\', \'False\'), ', now())");
-		  $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable Credit Card Method', 'MODULE_PAYMENT_EBANX_CCARD', 'True', 'Enable Credit Card Payment Method?', '6',  '0', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now())");
-		  $db->Execute("insert into " . TABLE_CONFIGURATION . "	(configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function,  date_added) values ('Enable TEF Method', 'MODULE_PAYMENT_EBANX_TEF', 'True', 'Enable TEF Payment Method?', '6', '0', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now())");
-     	$db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort order of display.', 'MODULE_PAYMENT_EBANX_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
+     	//$db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort order of display.', 'MODULE_PAYMENT_EBANX_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
      	$db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added) values ('Payment Zone', 'MODULE_PAYMENT_EBANX_ZONE', '0', 'If a zone is selected, only enable this payment method for that zone.', '6', '2', 'zen_get_zone_class_title', 'zen_cfg_pull_down_zone_classes(', now())");
     }
 

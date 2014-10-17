@@ -3,10 +3,8 @@
 
 require_once 'ebanx/ebanx-php-master/src/autoload.php';
 
-ini_set('display_errors', -1);
-error_reporting(E_ALL ^ E_NOTICE);
 
-//require_once(IS_ADMIN_FLAG === true ? DIR_FS_CATALOG_MODULES : DIR_WS_MODULES)
+
 class ebanx_checkout extends base {
 
     var $code, $title, $description, $enabled, $payment, $checkoutURL, $status;
@@ -21,29 +19,8 @@ class ebanx_checkout extends base {
       $this->sort_order = MODULE_PAYMENT_EBANX_CHECKOUT_SORT_ORDER;
       $this->enabled = ((MODULE_PAYMENT_EBANX_CHECKOUT_STATUS == 'True') ? true : false);
 
-      // if ((int)MODULE_PAYMENT_EBANX_ORDER_STATUS_ID > 0) {
-      //   $this->order_status = MODULE_PAYMENT_EBANX_ORDER_STATUS_ID;
-      //   $payment='ebanx';
-      // } else {
-      //   if ($payment=='ebanx') {
-      //     $payment='';
-      //   }
-      // }
 
       if (is_object($order)) $this->update_status();
-
-       //$this->email_footer = MODULE_PAYMENT_BEBANX_TEXT_EMAIL_FOOTER;
-
-      // if (is_object($order)) $this->update_status();
-
-      // $this->email_footer = MODULE_PAYMENT_BEBANX_TEXT_EMAIL_FOOTER;
-
-      // if(isset($check_query))
-      // {
-      //   $integrationKey = $check_query->fields['configuration_value'];
-      //   $db->Execute("update" . TABLE_CONFIGURATION . " set configuration_value = " . $integrationKey . "where configuration_key = MODULE_PAYMENT_EBANX_CHECKOUT_INTEGRATIONKEY");
-      
-      // }
 
     }
 
@@ -89,78 +66,10 @@ class ebanx_checkout extends base {
              'module' => MODULE_PAYMENT_EBANX_CHECKOUT_TEXT_CATALOG_TITLE,
              'fields' => $fieldsArray);
 
-      //global $order;
-
-    // global $order;
-
-    //     for ($i=1; $i<13; $i++) {
-    //       $expires_month[] = array('id' => sprintf('%02d', $i), 'text' => strftime('%B',mktime(0,0,0,$i,1,2000)));
-    //     }
-
-    //     $today = getdate();
-    //     for ($i=$today['year']; $i < $today['year']+10; $i++) {
-    //       $expires_year[] = array('id' => strftime('%y',mktime(0,0,0,1,1,$i)), 'text' => strftime('%Y',mktime(0,0,0,1,1,$i)));
-    //     }
-    //     $onFocus = ' onfocus="methodSelect(\'pmt-' . $this->code . '\')"';
-
-    //     $fieldsArray = array();
-
-    //     $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CREDIT_CARD_OWNER,
-    //                            'field' => zen_draw_input_field('ebanx_cc_owner', $order->billing['firstname'] . ' ' . $order->billing['lastname'],
-    //                            'id="'.$this->code.'-cc-owner"'. $onFocus),
-    //                            'tag' => $this->code.'-cc-owner');
-    //     $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CREDIT_CARD_NUMBER,
-    //                            'field' => zen_draw_input_field('ebanx_cc_number', '',
-    //                            'id="'.$this->code.'-cc-number"' . $onFocus),
-    //                            'tag' => $this->code.'-cc-number');
-    //     $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CREDIT_CARD_EXPIRES,
-    //                            'field' => zen_draw_pull_down_menu('ebanx_cc_expires_month', $expires_month, '',
-    //                'id="'.$this->code.'-cc-expires-month"' . $onFocus) . '&nbsp;' . zen_draw_pull_down_menu('ebanx_cc_expires_year', $expires_year, '',
-    //                            'id="'.$this->code.'-cc-expires-year"' . $onFocus),
-    //                            'tag' => $this->code.'-cc-expires-month');
-
-       
-    //     $fieldsArray[]= array('title' => MODULE_PAYMENT_EBANX_TEXT_CVV,
-    //                            'field' => zen_draw_input_field('ebanx_cc_cvv','', 'size="4", maxlength="4" ' .
-    //                            'id="'.$this->code.'-cc-cvv"' . $onFocus) . ' ' . '<a href="javascript:popupWindow(\'' . zen_href_link(FILENAME_POPUP_CVV_HELP) . '\')">' . MODULE_PAYMENT_EBANX_TEXT_POPUP_CVV_LINK. '</a>',
-    //                            'tag' => $this->code.'-cc-cvv');
-                        
-    //                  //array('title' => MODULE_PAYMENT_AUTHORIZENET_TEXT_CREDIT_CARD_EXPIRES,
-
-        
-
-
-    //     if (MODULE_PAYMENT_EBANX_INSTALLMENTS == 'True') {
-
-    //       for ($i=0; $i < $this->num_installments; $i++) {
-
-          
-    //         $installments[$i] = array('id' => $i+1, 'text' => $i+1 );   //sprintf('%02d', $i)
-          
-    //     }
-
-
-          
-
-
-    //       $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_INSTALLMENTS,
-    //                                              'field' => zen_draw_pull_down_menu('ebanx_installments', $installments, '', 'id="'.$this->code.'-ebanx-cc-installments"' .  $onFocus . ' autocomplete="on"'),
-    //                                              'tag' => $this->code.'-ebanx-cc-installments');
-    //     } 
-
-        
-
-    //           $selection = array('id' => $this->code,
-    //                        'module' => MODULE_PAYMENT_EBANX_TEXT_CATALOG_TITLE,
-    //                        'fields' => $fieldsArray);
-
-    
-        
-    //     return $selection;
 
       return $selection;
 
-   // return false;
+   
     }
   
     function pre_confirmation_check() {
@@ -178,23 +87,6 @@ class ebanx_checkout extends base {
     }
 
     function confirmation() {
-    // global $order;
-
-    // $fieldsArray = array();
-
-    // $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CREDIT_CARD_OWNER,
-    //                                            'field' => $_POST['ebanx_cc_owner']);
-
-
-    // if (isset($_POST['ebanx_installments'])) {
-    //       $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_INSTALLMENTS,
-    //                                            'field' => $_POST['ebanx_installments']);
-    // }
-
-    //     $confirmation = array(//'title' => MODULE_PAYMENT_PLUGNPAY_API_TEXT_CATALOG_TITLE,
-    //                       'fields' => $fieldsArray);
-
-    // return $confirmation;
 
       return false;
       
@@ -326,21 +218,6 @@ class ebanx_checkout extends base {
 		  $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Integration Key', 'MODULE_PAYMENT_EBANX_CHECKOUT_INTEGRATIONKEY', '". $integrationKey . "', 'Your EBANX unique integration key', '6', '0', now())");
 		  $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Test Mode', 'MODULE_PAYMENT_EBANX_CHECKOUT_TESTMODE', 'True', 'Test Mode?', '6', '0', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now())");
      	$db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added) values ('Payment Zone', 'MODULE_PAYMENT_EBANX_CHECKOUT_ZONE', '0', 'If a zone is selected, only enable this payment method for that zone.', '6', '2', 'zen_get_zone_class_title', 'zen_cfg_pull_down_zone_classes(', now())");
-      //$db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort order of display.', 'MODULE_PAYMENT_EBANX_CHECKOUT_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
-    
-
-        // var_dump($integrationKey);
-        // die;
-        //$db->Execute("update " . TABLE_CONFIGURATION . " set configuration_value = " . $integrationKey . " where configuration_key = 'MODULE_PAYMENT_EBANX_CHECKOUT_INTEGRATIONKEY' ");
-      
-
-
-      // if(isset($check_query))
-      // {
-      //   $integrationKey = $check_query->fields['configuration_value'];
-      //   $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_value) values (" . $integrationKey . ") where configuration_key = MODULE_PAYMENT_EBANX_CHECKOUT_INTEGRATIONKEY");
-      
-      // }
 
     }
 
@@ -350,15 +227,7 @@ class ebanx_checkout extends base {
     }
 
     function keys() {
-      // return array('MODULE_PAYMENT_EBANX_STATUS'
-      // 	, 'MODULE_PAYMENT_EBANX_INTEGRATIONKEY'
-      // 	, 'MODULE_PAYMENT_EBANX_TESTMODE'
-      // 	, 'MODULE_PAYMENT_EBANX_INSTALLMENTS'
-      // 	, 'MODULE_PAYMENT_EBANX_MAXINSTALLMENTS'
-      // 	, 'MODULE_PAYMENT_EBANX_INSTALLMENTSRATE'
-      // 	, 'MODULE_PAYMENT_EBANX_CHECKOUT'
-      // 	, 'MODULE_PAYMENT_EBANX_CCARD'
-      // 	, 'MODULE_PAYMENT_EBANX_TEF');
+
 
       return array('MODULE_PAYMENT_EBANX_CHECKOUT_STATUS', 'MODULE_PAYMENT_EBANX_CHECKOUT_INTEGRATIONKEY', 'MODULE_PAYMENT_EBANX_CHECKOUT_TESTMODE', 'MODULE_PAYMENT_EBANX_CHECKOUT_ZONE');
     
