@@ -16,14 +16,13 @@ It includes support to installments and custom interest rates.
 git clone --recursive https://github.com/ebanx/zencart.git
 ```
 2. Visit your Zen Cart payment settings at **Modules > Payment**.
-3. Locate module **EBANX**.
-4. Select module and click "Install".
-5. Add the integration key you were given by the EBANX integration team. You will need to use different keys in test and production modes.
-6. Change the other settings if needed.
-7. Now select module **EBANX Checkout**.
-8. Click "Install".
-9. Change the other settings if needed.
-10. Go to the EBANX Merchant Area, then to **Integration > Merchant Options**.
+3. If you wish to accept credit card payments from Brazil through EBANX, locate module **EBANX**and click "Install".
+4. Add the integration key you were given by the EBANX integration team. You will need to use different keys in test and production modes.
+5. Change the other settings if needed.
+6. Now select module **EBANX Checkout** if you wish to accept "Boleto Bancário" and "TEF" payments.
+7. Click "Install".
+8. Change the other settings if needed.
+9. Go to the EBANX Merchant Area, then to **Integration > Merchant Options**.
   1. Change the _Status Change Notification URL_ to:
 ```
 {YOUR_SITE}/ebanx_notification.php
@@ -32,7 +31,7 @@ git clone --recursive https://github.com/ebanx/zencart.git
 ```
 {YOUR_SITE}ebanx_return.php
 ```
-11. That's all!
+10. That's all!
 
 ## Changelog
 * 1.0.0: first release.
