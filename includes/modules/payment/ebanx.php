@@ -29,6 +29,7 @@ class ebanx extends base
     function update_status()
     {
         global $db;
+
         global $order;
 
         if (($this->enabled == true) && ((int)MODULE_PAYMENT_EBANX_ZONE > 0)) 
