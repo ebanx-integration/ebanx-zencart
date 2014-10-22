@@ -22,9 +22,11 @@ class ebanx extends base
             $this->num_installments = MODULE_PAYMENT_EBANX_MAXINSTALLMENTS;
         }
 
-        if (is_object($order)) $this->update_status();
+        if (is_object($order))
+        {
+          $this->update_status();
+        }
     }
-
    // class methods
     function update_status()
     {
@@ -223,13 +225,6 @@ class ebanx extends base
         $process_button_string .= zen_draw_hidden_field('customer_cpf', $_POST['ebanx_cpf']);
         $process_button_string .= zen_draw_hidden_field('instalments', $_POST['ebanx_installments']);
 
-        
-        // $last_order_id = $db->Execute("select * from " . TABLE_ORDERS . " order by orders_id desc limit 1");
-        // $new_order_id = $last_order_id->fields['orders_id'];
-        // $new_order_id = ($new_order_id + 1);
-
-        // $process_button_string .= zen_draw_hidden_field('order_id', $new_order_id);
- 
         return $process_button_string;
     }
 
@@ -351,6 +346,7 @@ class ebanx extends base
   function check()
   {
       global $db;
+      
       if (!isset($this->_check))
       {
           $check_query = $db->Execute("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_EBANX_STATUS'");

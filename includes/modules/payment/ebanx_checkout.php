@@ -4,10 +4,8 @@ require_once 'ebanx/ebanx-php-master/src/autoload.php';
 
 class ebanx_checkout extends base 
 {
-
     var $code, $title, $description, $enabled, $payment, $checkoutURL, $status;
     
-
 // class constructor
     function ebanx_checkout()
     {
@@ -18,7 +16,10 @@ class ebanx_checkout extends base
         //$this->sort_order = MODULE_PAYMENT_EBANX_CHECKOUT_SORT_ORDER;
         $this->enabled = ((MODULE_PAYMENT_EBANX_CHECKOUT_STATUS == 'True') ? true : false);
 
-        if (is_object($order)) $this->update_status();
+        if (is_object($order))
+        {
+            $this->update_status();
+        }
     }
 
 // class methods
@@ -67,31 +68,16 @@ class ebanx_checkout extends base
               
             $fieldsArray = array();
 
-            // $fieldsArray[] = array('title' => MODULE_PAYMENT_EBANX_TEXT_CUSTOMER_CPF,
-            //                        'field' => zen_draw_input_field('ebanxb_cpf', '',
-            //     20537924218                   'id="'.$this->code.'-cpf"'. $onFocus),
-            //                        'tag' => $this->code.'-cpf');
-
-            $selection = array('id' => $this->code,
-                               'module' => MODULE_PAYMENT_EBANX_CHECKOUT_TEXT_CATALOG_TITLE
-                               //,'fields' => $fieldsArray);
-                              );
+            $selection   = array('id' => $this->code,
+                                 'module' => MODULE_PAYMENT_EBANX_CHECKOUT_TEXT_CATALOG_TITLE
+                              //,'fields' => $fieldsArray);
+                                );
         }
         return $selection;
     }
   
     function pre_confirmation_check()
     {
-      // global $db, $_POST, $messageStack;
-
-      // if (!$this->validaCPF($_POST['ebanxb_cpf'])){
-
-      //     $payment_error_return = 'payment_error=' . $this->code . '&ebanx_cpf=' . $_POST['ebanx_cpf'];
-      //     $messageStack->add_session('checkout_payment', 'CPF Inválido!');
-      //     zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
-
-      // }
-
         return false;
     }
 
@@ -102,9 +88,6 @@ class ebanx_checkout extends base
 
     function process_button()
     {
-
-        // $process_button_string .= zen_draw_hidden_field('customerb_cpf', $_POST['ebanxb_cpf']);
-        // return $process_button_string;
         return false;
     }
 
@@ -249,14 +232,6 @@ class ebanx_checkout extends base
         {
             $status_id = $check_query->fields['orders_status_id'];
         }
-        //   $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable Ebanx Module', 'MODULE_PAYMENT_EBANX_STATUS', 'True', 'Do you want to accept Ebanx payments?', '6', '1', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now());");
-        //   $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Test Mode', 'MODULE_PAYMENT_EBANX_TESTMODE', 'True', 'Test Mode?', '6', '1', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now());");
-        //   $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Username', 'MODULE_PAYMENT_BITCOIN_LOGIN', 'testing', 'The Username for Bitcoin RPC', '6', '0', now())");
-        //   $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Integration Key', 'MODULE_PAYMENT_EBANX_INTEGRATIONKEY', 'testing', 'The API Login ID used for the Authorize.net service', '6', '0', now())");
-        //   $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort order of display.', 'MODULE_PAYMENT_BITCOIN_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
-        //   $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added) values ('Payment Zone', 'MODULE_PAYMENT_BITCOIN_ZONE', '0', 'If a zone is selected, only enable this payment method for that zone.', '6', '2', 'zen_get_zone_class_title', 'zen_cfg_pull_down_zone_classes(', now())");
-        //   $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, use_function, date_added) values ('Set Order Status', 'MODULE_PAYMENT_BITCOIN_ORDER_STATUS_ID', '0', 'Set the status of orders made with this payment module to this value', '6', '0', 'zen_cfg_pull_down_order_statuses(', 'zen_get_order_status_name', now())");
-        
 
         // Sets Integration Key if already existing in TABLE_CONFIGURATION
         $check_query = $db->Execute("select configuration_value from " . TABLE_CONFIGURATION . " c where c.configuration_key = 'MODULE_PAYMENT_EBANX_INTEGRATIONKEY'");

@@ -11,7 +11,4 @@
   define('MODULE_PAYMENT_EBANX_TEXT_CVV', 'Número de Segurança:');
   define('MODULE_PAYMENT_EBANX_TEXT_POPUP_CVV_LINK', '&nbspO que é isso?');
   define('MODULE_PAYMENT_EBANX_TEXT_CUSTOMER_CPF', 'CPF');
-  define('MODULE_PAYMENT_EBANX_TEXT_INSTALLMENTS', 'Parcelas:');
-
-  
-  
+  define('MODULE_PAYMENT_EBANX_TEXT_INSTALLMENTS', 'Parcelas:'); 
