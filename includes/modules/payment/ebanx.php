@@ -36,14 +36,13 @@ class ebanx extends base
 {
     var $code, $title, $description, $enabled, $payment;
 
-// class constructor
+    // class constructor
     function ebanx()
     {
         global $order;
         $this->code = 'ebanx';
         $this->title = MODULE_PAYMENT_EBANX_TEXT_TITLE;
         $this->description = MODULE_PAYMENT_EBANX_TEXT_DESCRIPTION;
-        //$this->sort_order = MODULE_PAYMENT_EBANX_SORT_ORDER;
         $this->enabled = ((MODULE_PAYMENT_EBANX_STATUS == 'True') ? true : false);
 
         if (MODULE_PAYMENT_EBANX_INSTALLMENTS == 'True')
@@ -56,7 +55,7 @@ class ebanx extends base
           $this->update_status();
         }
     }
-   // class methods
+    // class methods
     function update_status()
     {
         global $db;
@@ -162,8 +161,6 @@ class ebanx extends base
         $selection = array('id' => $this->code,
                            'module' => MODULE_PAYMENT_EBANX_TEXT_CATALOG_TITLE,
                            'fields' => $fieldsArray);
-
-        // return array('id' => $this->code, 'module' => $this->title); 
 
         return $selection;
     }
@@ -338,8 +335,6 @@ class ebanx extends base
                                          ,'card_name'    => $_POST['cc_owner']
                                          ,'card_due_date' => $_POST['cc_expires']
                                          ,'card_cvv'      => $_POST['cc_cvv']
-                                         //,'auto_capture'  => true
-
                                                         )
                                 )
         );
@@ -355,7 +350,7 @@ class ebanx extends base
         }
         else
         { 
-            $payment_error_return = 'payment_error=' . $this->code ;//. '&ebanx_cpf=' . $_POST['ebanx_cpf'];
+            $payment_error_return = 'payment_error=' . $this->code ;
             $messageStack->add_session('checkout_payment', 'Ops! Deu algum erro.');
             zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
         }
@@ -363,26 +358,25 @@ class ebanx extends base
 
     function after_process()
     {
-        //print_r('after');
         return false;
     }
 
-  function get_error()
-  {
+    function get_error()
+    {
       return false;
-  }
+    }
 
-  function check()
-  {
-      global $db;
+    function check()
+    {
+        global $db;
       
-      if (!isset($this->_check))
-      {
-          $check_query = $db->Execute("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_EBANX_STATUS'");
-          $this->_check = $check_query->RecordCount();
-      }
-      return $this->_check;
-  }
+        if (!isset($this->_check))
+        {
+            $check_query = $db->Execute("select configuration_value from " . TABLE_CONFIGURATION . " where configuration_key = 'MODULE_PAYMENT_EBANX_STATUS'");
+            $this->_check = $check_query->RecordCount();
+        }
+        return $this->_check;
+    }
 
     function install()
     {
@@ -437,7 +431,6 @@ class ebanx extends base
         $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Installments'   ,   'MODULE_PAYMENT_EBANX_INSTALLMENTS', 'False', 'Enable Installments?', '6', '0', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now())");
         $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Maximum Installments Enabled', 'MODULE_PAYMENT_EBANX_MAXINSTALLMENTS', '6', 'Maximum Installments Number', '6', '0',  now())");
         $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Installments rate (%)', 'MODULE_PAYMENT_EBANX_INSTALLMENTSRATE', '10',  'Installments Rate', '6',  '0', now())");
-        //$db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Sort order of display.', 'MODULE_PAYMENT_EBANX_SORT_ORDER', '0', 'Sort order of display. Lowest is displayed first.', '6', '0', now())");
         $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, use_function, set_function, date_added) values ('Payment Zone', 'MODULE_PAYMENT_EBANX_ZONE', '0', 'If a zone is selected, only enable this payment method for that zone.', '6', '2', 'zen_get_zone_class_title', 'zen_cfg_pull_down_zone_classes(', now())");
     }
 

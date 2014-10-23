@@ -36,14 +36,13 @@ class ebanx_checkout extends base
 {
     var $code, $title, $description, $enabled, $payment, $checkoutURL, $status;
     
-// class constructor
+    // class constructor
     function ebanx_checkout()
     {
         global $order;
         $this->code = 'ebanx_checkout';
         $this->title = MODULE_PAYMENT_EBANX_CHECKOUT_TEXT_TITLE;
         $this->description = MODULE_PAYMENT_EBANX_CHECKOUT_TEXT_DESCRIPTION;
-        //$this->sort_order = MODULE_PAYMENT_EBANX_CHECKOUT_SORT_ORDER;
         $this->enabled = ((MODULE_PAYMENT_EBANX_CHECKOUT_STATUS == 'True') ? true : false);
 
         if (is_object($order))
@@ -52,7 +51,7 @@ class ebanx_checkout extends base
         }
     }
 
-// class methods
+    // class methods
     function update_status()
     {
         global $db;
@@ -100,7 +99,6 @@ class ebanx_checkout extends base
 
             $selection   = array('id' => $this->code,
                                  'module' => MODULE_PAYMENT_EBANX_CHECKOUT_TEXT_CATALOG_TITLE
-                              //,'fields' => $fieldsArray);
                                 );
         }
         return $selection;
@@ -165,8 +163,6 @@ class ebanx_checkout extends base
                                                , 'payment_type_code' =>  '_all'
                                                , 'merchant_payment_code' => $new_order_id
                                                , 'country'           => $order->billing['country']['title']
-                                               //, 'cpf'          => $_POST['customerb_cpf']
-                                               //, 'document'          => $_POST['customerb_cpf']
                                                , 'zipcode'           => $order->billing['postcode']
                                                , 'phone_number'      => $order->customer['telephone']
                                           )
@@ -227,7 +223,6 @@ class ebanx_checkout extends base
     function install()
     {
         $integrationKey = 0;
-        // global $db;
         global $db, $messageStack;
         if (defined('MODULE_PAYMENT_EBANX_CHECKOUT_STATUS'))
         {
@@ -256,7 +251,7 @@ class ebanx_checkout extends base
             foreach ($languages as $lang)
             {
                 $db->Execute("insert into " . TABLE_ORDERS_STATUS . " (orders_status_id, language_id, orders_status_name) values ('" . $status_id . "', '" . $lang['id'] . "', 'Cancelled')");
-            } //$languages as $lang
+            }
         }
         else
         {
@@ -289,4 +284,3 @@ class ebanx_checkout extends base
     }
   
   }
- ?>
