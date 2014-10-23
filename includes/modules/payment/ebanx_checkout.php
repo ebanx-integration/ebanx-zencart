@@ -226,7 +226,7 @@ class ebanx_checkout extends base
 
     function install()
     {
-        private $integrationKey = 0;
+        $integrationKey = 0;
         // global $db;
         global $db, $messageStack;
         if (defined('MODULE_PAYMENT_EBANX_CHECKOUT_STATUS'))
