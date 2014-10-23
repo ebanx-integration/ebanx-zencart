@@ -29,7 +29,7 @@ git clone --recursive https://github.com/ebanx/zencart.git
 ```
   2. Change the _Response URL_ to:
 ```
-{YOUR_SITE}ebanx_return.php
+{YOUR_SITE}/ebanx_return.php
 ```
 10. That's all!
 
