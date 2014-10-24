@@ -174,7 +174,7 @@ class ebanx_checkout extends base
       {   
           
           // Resets cart, saves Checkout URL and stores data in database
-          unset($_SESSION['cart']);
+          $_SESSION['cart']->reset(true);
           $this->checkoutURL = $submit->redirect_url;
           $hash = $submit->payment->hash;
           $db->Execute("insert into ebanx_data (order_id, customers_cpf, hash) values ('" . $new_order_id . "', '" . $_POST['customerb_cpf'] . "', '" . $hash . "')");
