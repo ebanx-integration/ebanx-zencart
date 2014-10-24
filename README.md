@@ -17,12 +17,12 @@ git clone --recursive https://github.com/ebanx/zencart.git
 ```
 2. Visit your Zen Cart payment settings at **Modules > Payment**.
 3. If you wish to accept credit card payments from Brazil through EBANX, locate module **EBANX**and click "Install".
-4. Add the integration key you were given by the EBANX integration team. You will need to use different keys in test and production modes.
-5. Change the other settings if needed.
+4. Click on "Edit". Add the integration key you were given by the EBANX integration team. You will need to use different keys in test and production modes.
+5. Change the other settings if needed. Click on "Update".
 6. If you wish to accept "Boleto Bancário" and "TEF" payment, select module **EBANX Checkout** .
 7. Click "Install".
-8. If needed, add the integration key you were given by the EBANX integration team. You will need to use different keys in test and production modes.
-9. Change the other settings if needed.
+8. If needed, click on "Edit" and add the integration key you were given by the EBANX integration team. You will need to use different keys in test and production modes.
+9. Change the other settings if needed. Click on "Update".
 10. Go to the EBANX Merchant Area, then to **Integration > Merchant Options**.
   1. Change the _Status Change Notification URL_ to:
 ```
