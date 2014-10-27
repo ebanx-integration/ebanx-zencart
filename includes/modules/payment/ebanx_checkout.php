@@ -141,12 +141,12 @@ class ebanx_checkout extends base
         //Country title workaround
         if($order->billing['country']['title'] == 'Brazil')
         {
-            $order->billing['country']['title'] = 'BR';
+            $country = 'BR';
         }
  
         if($order->billing['country']['title'] == 'Peru')
         {
-            $order->billing['country']['title'] = 'PE';
+            $country = 'PE';
         }
 
         // Creates next order ID
@@ -162,7 +162,7 @@ class ebanx_checkout extends base
                                                , 'email'             =>  $order->customer['email_address']
                                                , 'payment_type_code' =>  '_all'
                                                , 'merchant_payment_code' => $new_order_id
-                                               , 'country'           => $order->billing['country']['title']
+                                               , 'country'           => $country
                                                , 'zipcode'           => $order->billing['postcode']
                                                , 'phone_number'      => $order->customer['telephone']
                                           )
