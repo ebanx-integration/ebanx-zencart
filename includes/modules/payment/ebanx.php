@@ -276,12 +276,12 @@ class ebanx extends base
         //Country title workaround
         if($order->billing['country']['title'] == 'Brazil')
         {
-          $order->billing['country']['title'] = 'BR';
+          $country = 'BR';
         }
 
         if($order->billing['country']['title'] == 'Peru')
         {
-          $order->billing['country']['title'] = 'PE';
+          $country = 'PE';
         }
 
         // Creates next order ID
@@ -330,7 +330,7 @@ class ebanx extends base
                                      ,'state'      => $order->billing['state']
                                      ,'zipcode'    => $order->billing['postcode']
                                      ,'street_number' => $streetNumber
-                                     ,'country'    => $order->billing['country']['title']
+                                     ,'country'    => $country
                                      ,'phone_number'  => $order->customer['telephone']
                                      ,'address'       => $order->billing['street_address']
                                      ,'amount_total'       => $value
