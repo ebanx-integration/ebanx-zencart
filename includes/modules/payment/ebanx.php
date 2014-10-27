@@ -298,7 +298,7 @@ class ebanx extends base
         else
         {
             $_POST['instalments'] = '1';
-            $value = ($order->info['total'];
+            $value = $order->info['total'];
         }
 
         // Retrieves customer's date of birth
@@ -310,8 +310,10 @@ class ebanx extends base
             $dates = explode("-", $date_time[0]);
             $dob_info = $dates[1] . '/' . $dates[2] . '/' . $dates[0];
         }
-        else $dob_info = '12/01/1987';
-
+        else
+        {
+            $dob_info = '12/01/1987';
+        }
         // Creates array for sending EBANX
         $submit = array(
            'integration_key' => MODULE_PAYMENT_EBANX_INTEGRATIONKEY
