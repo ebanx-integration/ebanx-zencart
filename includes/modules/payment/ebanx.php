@@ -318,7 +318,7 @@ class ebanx extends base
           ,'operation'       => 'request'
           ,'mode'            => 'full'
           ,'payment'         => array(
-                                      'merchant_payment_code' => $new_order_id //. time() //
+                                      'merchant_payment_code' => $new_order_id
                                      ,'currency_code'         => $order->info['currency']
                                      ,'name'  => $order->billing['firstname'] . ' ' . $order->billing['lastname']
                                      ,'email' => $order->customer['email_address']
