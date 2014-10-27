@@ -293,9 +293,13 @@ class ebanx extends base
         if (isset($_POST['instalments']) &&  $_POST['instalments'] > '1')
         {
             $interestRate = floatval(MODULE_PAYMENT_EBANX_INSTALLMENTSRATE);
-            $submit['payment']['amount_total'] = ($order->info['total'] * (100 + $interestRate)) / 100.0;
+            $value = ($order->info['total'] * (100 + $interestRate)) / 100.0;
         }
-        else $_POST['instalments'] = '1';
+        else
+        {
+            $_POST['instalments'] = '1';
+            $value = ($order->info['total'];
+        }
 
         // Retrieves customer's date of birth
         $dob_info = $db->Execute ("SELECT customers_dob FROM " . TABLE_CUSTOMERS . " WHERE customers_id = " . $_SESSION['customer_id'] . " LIMIT 1");
@@ -325,14 +329,14 @@ class ebanx extends base
                                      ,'zipcode'    => $order->billing['postcode']
                                      ,'street_number' => $streetNumber
                                      ,'country'    => $order->billing['country']['title']
-                                     ,'phone_number' => $order->customer['telephone']
-                                     ,'address'      => $order->billing['street_address']
-                                     ,'amount_total'       => $order->info['total']
-                                     ,'instalments'  => $_POST['instalments']
+                                     ,'phone_number'  => $order->customer['telephone']
+                                     ,'address'       => $order->billing['street_address']
+                                     ,'amount_total'       => $value
+                                     ,'instalments'   => $_POST['instalments']
                                      ,'payment_type_code' => $_POST['cc_type']
-                                     ,'creditcard'   => array(
-                                          'card_number'  => $_POST['cc_number']
-                                         ,'card_name'    => $_POST['cc_owner']
+                                     ,'creditcard'    => array(
+                                          'card_number'   => $_POST['cc_number']
+                                         ,'card_name'     => $_POST['cc_owner']
                                          ,'card_due_date' => $_POST['cc_expires']
                                          ,'card_cvv'      => $_POST['cc_cvv']
                                                         )
