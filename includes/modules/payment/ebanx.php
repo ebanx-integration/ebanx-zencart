@@ -293,7 +293,7 @@ class ebanx extends base
         if (isset($_POST['instalments']) &&  $_POST['instalments'] > '1')
         {
             $interestRate = floatval(MODULE_PAYMENT_EBANX_INSTALLMENTSRATE);
-            $value = ($order->info['total'] * (100 + $interestRate)) / 100.0;
+            $value = number_format((($order->info['total'] * (100 + $interestRate)) / 100.0) , 2);
         }
         else
         {
