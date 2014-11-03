@@ -135,8 +135,7 @@ class ebanx_checkout extends base
         \Ebanx\Config::set(array(
              'integrationKey' => MODULE_PAYMENT_EBANX_CHECKOUT_INTEGRATIONKEY
             ,'testMode'       => MODULE_PAYMENT_EBANX_CHECKOUT_TESTMODE
-                          )
-        );
+        ));
 
         //Country title workaround
         if($order->billing['country']['title'] == 'Brazil')
@@ -156,15 +155,15 @@ class ebanx_checkout extends base
       
         // Creates array and submits data to EBANX
         $submit = \Ebanx\Ebanx::doRequest(array(
-                                                 'currency_code'     =>  $order->info['currency']
-                                               , 'amount'            =>  $order->info['total']
-                                               , 'name'              =>  $order->billing['firstname'] . ' ' . $order->billing['lastname']
-                                               , 'email'             =>  $order->customer['email_address']
-                                               , 'payment_type_code' =>  '_all'
-                                               , 'merchant_payment_code' => $new_order_id
-                                               , 'country'           => $country
-                                               , 'zipcode'           => $order->billing['postcode']
-                                               , 'phone_number'      => $order->customer['telephone']
+                 'currency_code'     =>  $order->info['currency']
+                , 'amount'            =>  $order->info['total']
+                , 'name'              =>  $order->billing['firstname'] . ' ' . $order->billing['lastname']
+                , 'email'             =>  $order->customer['email_address']
+                , 'payment_type_code' =>  '_all'
+                , 'merchant_payment_code' => $new_order_id
+                , 'country'           => $country
+                , 'zipcode'           => $order->billing['postcode']
+                , 'phone_number'      => $order->customer['telephone']
                                           )
         ); 
 
@@ -191,7 +190,6 @@ class ebanx_checkout extends base
         {
             zen_redirect($this->checkoutURL);
         }
-
         else
         {
             $payment_error_return = 'payment_error=' . $this->code;

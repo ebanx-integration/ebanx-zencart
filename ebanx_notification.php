@@ -36,10 +36,8 @@ global $db;
 
 \Ebanx\Config::set(array(
     'integrationKey' => MODULE_PAYMENT_EBANX_INTEGRATIONKEY
-   
    ,'testMode'       => MODULE_PAYMENT_EBANX_TESTMODE
-                   )
-);
+));
 
 $hashes = $_REQUEST['hash_codes'];
 

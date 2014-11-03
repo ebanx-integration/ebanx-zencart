@@ -36,7 +36,7 @@ class ebanx extends base
 {
     var $code, $title, $description, $enabled, $payment;
 
-    // class constructor
+    
     function ebanx()
     {
         global $order;
@@ -55,7 +55,7 @@ class ebanx extends base
           $this->update_status();
         }
     }
-    // class methods
+    
     function update_status()
     {
         global $db;
@@ -266,8 +266,8 @@ class ebanx extends base
         \Ebanx\Config::set(array(
             'integrationKey' => MODULE_PAYMENT_EBANX_INTEGRATIONKEY
            ,'testMode'       => MODULE_PAYMENT_EBANX_TESTMODE
-                           )
-        );
+        ));
+
         \Ebanx\Config::setDirectMode(true);
 
         // Creates notification URL
@@ -320,28 +320,28 @@ class ebanx extends base
           ,'operation'       => 'request'
           ,'mode'            => 'full'
           ,'payment'         => array(
-                                      'merchant_payment_code' => $new_order_id
-                                     ,'currency_code'         => $order->info['currency']
-                                     ,'name'  => $order->billing['firstname'] . ' ' . $order->billing['lastname']
-                                     ,'email' => $order->customer['email_address']
-                                     ,'birth_date' => $dob_info
-                                     ,'document'   => $_POST['customer_cpf']
-                                     ,'city'       => $order->billing['city']
-                                     ,'state'      => $order->billing['state']
-                                     ,'zipcode'    => $order->billing['postcode']
-                                     ,'street_number' => $streetNumber
-                                     ,'country'    => $country
-                                     ,'phone_number'  => $order->customer['telephone']
-                                     ,'address'       => $order->billing['street_address']
-                                     ,'amount_total'       => $value
-                                     ,'instalments'   => $_POST['instalments']
-                                     ,'payment_type_code' => $_POST['cc_type']
-                                     ,'creditcard'    => array(
-                                          'card_number'   => $_POST['cc_number']
-                                         ,'card_name'     => $_POST['cc_owner']
-                                         ,'card_due_date' => $_POST['cc_expires']
-                                         ,'card_cvv'      => $_POST['cc_cvv']
-                                                        )
+              'merchant_payment_code' => $new_order_id
+              ,'currency_code'         => $order->info['currency']
+              ,'name'  => $order->billing['firstname'] . ' ' . $order->billing['lastname']
+              ,'email' => $order->customer['email_address']
+              ,'birth_date' => $dob_info
+              ,'document'   => $_POST['customer_cpf']
+              ,'city'       => $order->billing['city']
+              ,'state'      => $order->billing['state']
+              ,'zipcode'    => $order->billing['postcode']
+              ,'street_number' => $streetNumber
+              ,'country'    => $country
+              ,'phone_number'  => $order->customer['telephone']
+              ,'address'       => $order->billing['street_address']
+              ,'amount_total'       => $value
+              ,'instalments'   => $_POST['instalments']
+              ,'payment_type_code' => $_POST['cc_type']
+              ,'creditcard'    => array(
+                  'card_number'   => $_POST['cc_number']
+                  ,'card_name'     => $_POST['cc_owner']
+                  ,'card_due_date' => $_POST['cc_expires']
+                  ,'card_cvv'      => $_POST['cc_cvv']
+                                      )
                                 )
         );
 
@@ -415,7 +415,7 @@ class ebanx extends base
             foreach ($languages as $lang)
             {
                 $db->Execute("insert into " . TABLE_ORDERS_STATUS . " (orders_status_id, language_id, orders_status_name) values ('" . $status_id . "', '" . $lang['id'] . "', 'Cancelled')");
-            } //$languages as $lang
+            }
         }
         else
         {
@@ -477,5 +477,4 @@ class ebanx extends base
             return true;
         }
     }
-
 }
