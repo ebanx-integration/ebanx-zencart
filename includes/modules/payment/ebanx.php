@@ -52,7 +52,7 @@ class ebanx extends base
 
         if (is_object($order))
         {
-          $this->update_status();
+            $this->update_status();
         }
     }
     
@@ -303,17 +303,18 @@ class ebanx extends base
 
         // Retrieves customer's date of birth
         $dob_info = $db->Execute ("SELECT customers_dob FROM " . TABLE_CUSTOMERS . " WHERE customers_id = " . $_SESSION['customer_id'] . " LIMIT 1");
-       
-        if (isset($dob_info))
+        $date_time = explode(" ", $dob_info->fields['customers_dob']);
+              
+        if ($date_time[0] != '0001-01-01')
         {
-            $date_time = explode(" ", $dob_info->fields['customers_dob']);
-            $dates = explode("-", $date_time[0]);
-            $dob_info = $dates[1] . '/' . $dates[2] . '/' . $dates[0];
+            $dates = explode("-", $date_time[0]); 
+            $dob_info = $dates[2] . '/' . $dates[1] . '/' . $dates[0];
         }
         else
         {
             $dob_info = '12/01/1987';
         }
+        
         // Creates array for sending EBANX
         $submit = array(
            'integration_key' => MODULE_PAYMENT_EBANX_INTEGRATIONKEY
@@ -369,7 +370,7 @@ class ebanx extends base
 
     function get_error()
     {
-      return false;
+        return false;
     }
 
     function check()
@@ -454,7 +455,6 @@ class ebanx extends base
     function validaCPF($cpf)
     {   
         $cpf = str_pad(ereg_replace('[^0-9]', '', $cpf), 11, '0', STR_PAD_LEFT);
-        
         
         if (strlen($cpf) != 11 || $cpf == '00000000000' || $cpf == '11111111111' || $cpf == '22222222222' || $cpf == '33333333333' || $cpf == '44444444444' || $cpf == '55555555555' || $cpf == '66666666666' || $cpf == '77777777777' || $cpf == '88888888888' || $cpf == '99999999999')
         {
