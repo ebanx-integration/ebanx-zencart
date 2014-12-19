@@ -314,7 +314,10 @@ class ebanx extends base
         {
             $dob_info = '12/01/1987';
         }
-        
+
+        //Looks for State by ID
+        $state = $db->Execute("SELECT zone_code FROM " . TABLE_ZONES . " WHERE zone_id = " . $order->billing['zone_id'] . " LIMIT 1");
+
         // Creates array for sending EBANX
         $submit = array(
            'integration_key' => MODULE_PAYMENT_EBANX_INTEGRATIONKEY
@@ -328,7 +331,7 @@ class ebanx extends base
               ,'birth_date' => $dob_info
               ,'document'   => $_POST['customer_cpf']
               ,'city'       => $order->billing['city']
-              ,'state'      => $order->billing['state']
+              ,'state'      => $state->fields['zone_code']
               ,'zipcode'    => $order->billing['postcode']
               ,'street_number' => $streetNumber
               ,'country'    => $country
@@ -387,6 +390,7 @@ class ebanx extends base
 
     function install()
     {
+        require_once 'ebanx/installer.php';
         $integrationKey = 0;
         global $db, $messageStack;
         if (defined('MODULE_PAYMENT_EBANX_STATUS'))
@@ -406,6 +410,10 @@ class ebanx extends base
              )   AUTO_INCREMENT=1 ;"
         );
         
+        //Creates states list to Brazil
+        $states = new Installer();
+        $states->stateInstaller($db);
+
         // Creates status "Cancelled" for EBANX orders
         $check_query = $db->Execute("select orders_status_id from " . TABLE_ORDERS_STATUS . " where orders_status_name = 'Cancelled' limit 1");
         if ($check_query->RecordCount() < 1)
