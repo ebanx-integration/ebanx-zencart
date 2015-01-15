@@ -279,11 +279,6 @@ class ebanx extends base
           $country = 'BR';
         }
 
-        if($order->billing['country']['title'] == 'Peru')
-        {
-          $country = 'PE';
-        }
-
         // Creates next order ID
         $last_order_id = $db->Execute("select * from " . TABLE_ORDERS . " order by orders_id desc limit 1");
         $new_order_id = $last_order_id->fields['orders_id'];
