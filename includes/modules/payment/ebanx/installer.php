@@ -32,6 +32,62 @@
 
 class Installer
 {
+    function statusInstaller($db)
+    {
+        $check_query = $db->Execute("select orders_status_id from " . TABLE_ORDERS_STATUS . " where orders_status_name = 'Cancelled' limit 1");
+
+        if ($check_query->RecordCount() < 1)
+        {
+            $status    = $db->Execute("select max(orders_status_id) as status_id from " . TABLE_ORDERS_STATUS);
+            $status_id = $status->fields['status_id'] + 1;
+            $languages = zen_get_languages();
+            foreach ($languages as $lang)
+            {
+                $db->Execute("insert into " . TABLE_ORDERS_STATUS . " (orders_status_id, language_id, orders_status_name) values ('" . $status_id . "', '" . $lang['id'] . "', 'Cancelled')");
+            }
+        }
+
+        else
+        {
+            $status_id = $check_query->fields['orders_status_id'];
+        }
+
+        $check_query = $db->Execute("select orders_status_id from " . TABLE_ORDERS_STATUS . " where orders_status_name = 'Refunded' limit 1");
+        if ($check_query->RecordCount() < 1)
+        {
+            $status    = $db->Execute("select max(orders_status_id) as status_id from " . TABLE_ORDERS_STATUS);
+            $status_id = $status->fields['status_id'] + 1;
+            $languages = zen_get_languages();
+            foreach ($languages as $lang)
+            {
+                $db->Execute("insert into " . TABLE_ORDERS_STATUS . " (orders_status_id, language_id, orders_status_name) values ('" . $status_id . "', '" . $lang['id'] . "', 'Refunded')");
+            }
+        }
+
+        else
+        {
+            $status_id = $check_query->fields['orders_status_id'];
+        }
+
+        $check_query = $db->Execute("select orders_status_id from " . TABLE_ORDERS_STATUS . " where orders_status_name = 'Chargeback' limit 1");
+
+        if ($check_query->RecordCount() < 1)
+        {
+            $status    = $db->Execute("select max(orders_status_id) as status_id from " . TABLE_ORDERS_STATUS);
+            $status_id = $status->fields['status_id'] + 1;
+            $languages = zen_get_languages();
+            foreach ($languages as $lang)
+            {
+                $db->Execute("insert into " . TABLE_ORDERS_STATUS . " (orders_status_id, language_id, orders_status_name) values ('" . $status_id . "', '" . $lang['id'] . "', 'Chargeback')");
+            }
+        }
+
+        else
+        {
+            $status_id = $check_query->fields['orders_status_id'];
+        }
+    }
+
 	function stateInstaller($db)
 	{
 		$db->Execute("update ". TABLE_CONFIGURATION . " set configuration_value='true' where configuration_key='ACCOUNT_STATE_DRAW_INITIAL_DROPDOWN'");

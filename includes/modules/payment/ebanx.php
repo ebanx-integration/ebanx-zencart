@@ -98,6 +98,12 @@ class ebanx extends base
     {
         global $order;
 
+        //Hides for non-brazilian customers
+        if($order->billing['country']['title'] != 'Brazil')
+        {
+            return $selection;
+        }
+
         // Creates dropdown list for expiring months
         for ($i=1; $i<13; $i++)
         {
@@ -356,7 +362,7 @@ class ebanx extends base
         else
         { 
             $payment_error_return = 'payment_error=' . $this->code ;
-            $messageStack->add_session('checkout_payment', 'Ops! Deu algum erro.');
+            $messageStack->add_session('checkout_payment', 'Ops! Deu algum erro.' . ' ' .  $response->status_message);
             zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
         }
     }
@@ -406,25 +412,11 @@ class ebanx extends base
         );
         
         //Creates states list to Brazil
-        $states = new Installer();
-        $states->stateInstaller($db);
+        $installer = new Installer();
+        $installer->stateInstaller($db);
 
-        // Creates status "Cancelled" for EBANX orders
-        $check_query = $db->Execute("select orders_status_id from " . TABLE_ORDERS_STATUS . " where orders_status_name = 'Cancelled' limit 1");
-        if ($check_query->RecordCount() < 1)
-        {
-            $status    = $db->Execute("select max(orders_status_id) as status_id from " . TABLE_ORDERS_STATUS);
-            $status_id = $status->fields['status_id'] + 1;
-            $languages = zen_get_languages();
-            foreach ($languages as $lang)
-            {
-                $db->Execute("insert into " . TABLE_ORDERS_STATUS . " (orders_status_id, language_id, orders_status_name) values ('" . $status_id . "', '" . $lang['id'] . "', 'Cancelled')");
-            }
-        }
-        else
-        {
-            $status_id = $check_query->fields['orders_status_id'];
-        }
+        //Creates order statuses for EBANX
+        $installer->statusInstaller($db);
 
         // Sets Integration Key if already existing in TABLE_CONFIGURATION
         $check_query = $db->Execute("select configuration_value from " . TABLE_CONFIGURATION . " c where c.configuration_key = 'MODULE_PAYMENT_EBANX_CHECKOUT_INTEGRATIONKEY'");
@@ -433,7 +425,6 @@ class ebanx extends base
         {
             $integrationKey = $check_query->fields['configuration_value'];
         }
-
 
         $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, set_function, date_added) values ('Enable Ebanx', 'MODULE_PAYMENT_EBANX_STATUS', 'True', 'Do you want to accept EBANX payments?', '6', '1', 'zen_cfg_select_option(array(\'True\', \'False\'), ', now())");
         $db->Execute("insert into " . TABLE_CONFIGURATION . " (configuration_title, configuration_key, configuration_value, configuration_description, configuration_group_id, sort_order, date_added) values ('Integration Key', 'MODULE_PAYMENT_EBANX_INTEGRATIONKEY', '". $integrationKey . "', 'Your EBANX unique integration key', '6', '0', now())");

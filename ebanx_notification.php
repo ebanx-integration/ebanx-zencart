@@ -61,11 +61,32 @@ if (isset($hashes) && $hashes != null)
         if ($response->status == 'SUCCESS')
         {
             if($response->payment->status == 'CO')
-            {   
+            {
                 $code = $response->payment->merchant_payment_code;
-                $db->Execute('UPDATE ' . TABLE_ORDERS . ' SET orders_status = 2 WHERE orders_id = ' . $code);
-                $db->Execute('UPDATE ' . TABLE_ORDERS_STATUS_HISTORY . ' SET orders_status_id = 2 WHERE orders_status_history_id = ' . $code);
-                echo 'Payment CO';
+                if(isset($response->payment->chargeback))
+                {
+                    $check_query = $db->Execute("select orders_status_id from " . TABLE_ORDERS_STATUS . " where orders_status_name = 'Chargeback' limit 1");
+                    $status_id = $check_query->fields['orders_status_id'];
+                    $db->Execute('UPDATE ' . TABLE_ORDERS . ' SET orders_status = ' . $status_id . ' WHERE orders_id = ' . $code);
+                    $db->Execute('UPDATE ' . TABLE_ORDERS_STATUS_HISTORY . ' SET orders_status_id = ' . $status_id . ' WHERE orders_status_history_id = ' . $code);
+                    echo 'Chargeback';
+                }
+
+                if(isset($response->payment->refunds))
+                {
+                    $check_query = $db->Execute("select orders_status_id from " . TABLE_ORDERS_STATUS . " where orders_status_name = 'Refunded' limit 1");
+                    $status_id = $check_query->fields['orders_status_id'];
+                    $db->Execute('UPDATE ' . TABLE_ORDERS . ' SET orders_status = ' . $status_id . ' WHERE orders_id = ' . $code);
+                    $db->Execute('UPDATE ' . TABLE_ORDERS_STATUS_HISTORY . ' SET orders_status_id = ' . $status_id . ' WHERE orders_status_history_id = ' . $code);
+                    echo 'Refunded';
+                }
+                
+                else
+                {
+                    $db->Execute('UPDATE ' . TABLE_ORDERS . ' SET orders_status = 2 WHERE orders_id = ' . $code);
+                    $db->Execute('UPDATE ' . TABLE_ORDERS_STATUS_HISTORY . ' SET orders_status_id = 2 WHERE orders_status_history_id = ' . $code);
+                    echo 'Payment CO';
+                }
             }
             if($response->payment->status == 'CA')
             {   
