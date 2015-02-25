@@ -35,8 +35,7 @@ git clone --recursive https://github.com/ebanx/zencart.git
 11. That's all!
 
 ## Changelog
-* 1.3.1: Handled Chargeback and Refunds
-* 1.2.1: Handled Peruvian payments
+* 1.2.1: Added Mexico Checkout. Handled Chargeback and Refund new notifications.
 * 1.1.1: added state listing by dropdown.
 * 1.0.1: fixed dob workaround and notification file.
 * 1.0.0: first release.

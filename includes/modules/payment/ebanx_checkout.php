@@ -107,6 +107,13 @@ class ebanx_checkout extends base
                                 );
         }
 
+        if($order->billing['country']['title'] == 'Mexico')
+        {
+            $selection   = array('id' => $this->code,
+                                 'module' => MODULE_PAYMENT_EBANX_CHECKOUT_TEXT_CATALOG_TITLE_MEXICO
+                                );
+        }
+
         return $selection;
     }
   
@@ -154,6 +161,11 @@ class ebanx_checkout extends base
             $country = 'PE';
         }
 
+        if($order->billing['country']['title'] == 'Mexico')
+        {
+            $country = 'MX';
+        }
+
         // Creates next order ID
         $last_order_id = $db->Execute("select * from " . TABLE_ORDERS . " order by orders_id desc limit 1");
         $new_order_id = $last_order_id->fields['orders_id'];
@@ -178,11 +190,10 @@ class ebanx_checkout extends base
       if($this->status == 'SUCCESS')
       {   
           
-          // Resets cart, saves Checkout URL and stores data in database
+          // Resets cart, saves Checkout URL
           $_SESSION['cart']->reset(true);
           $this->checkoutURL = $submit->redirect_url;
           $hash = $submit->payment->hash;
-          $db->Execute("insert into ebanx_data (order_id, customers_cpf, hash) values ('" . $new_order_id . "', '" . $_POST['customerb_cpf'] . "', '" . $hash . "')");
       }
 
       return false;
@@ -235,16 +246,6 @@ class ebanx_checkout extends base
             zen_redirect(zen_href_link(FILENAME_MODULES, 'set=payment&module=ebanx', 'NONSSL'));
             return 'failed';
         }
-
-        //Creates EBANX custom table
-        $db->Execute("CREATE TABLE IF NOT EXISTS `".DB_PREFIX ."ebanx_data` (
-            `ebanx_id` INT( 11 ) NOT NULL  auto_increment,
-            `order_id` VARCHAR( 64 ) NOT NULL ,
-            `customers_cpf` VARCHAR( 64 ) NOT NULL ,
-            `hash` VARCHAR( 64 ) NOT NULL ,
-             PRIMARY KEY  (`ebanx_id`)
-             )   AUTO_INCREMENT=1 ;"
-        );
 
         //Creates states list to Brazil
         $installer = new Installer();

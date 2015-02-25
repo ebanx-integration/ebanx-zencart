@@ -357,7 +357,6 @@ class ebanx extends base
         {
             $cpf = $_POST['customer_cpf'];
             $hash = $response->payment->hash;
-            $db->Execute("insert into ebanx_data (order_id, customers_cpf, hash) values ('" . $_POST['order_id'] . "', '" . $cpf . "', '" . $hash . "')");
         }
         else
         { 
@@ -400,17 +399,7 @@ class ebanx extends base
             zen_redirect(zen_href_link(FILENAME_MODULES, 'set=payment&module=ebanx', 'NONSSL'));
             return 'failed';
         }
-
-        //Creates EBANX custom table
-        $db->Execute("CREATE TABLE IF NOT EXISTS `".DB_PREFIX ."ebanx_data` (
-            `ebanx_id` INT( 11 ) NOT NULL  auto_increment,
-            `order_id` VARCHAR( 64 ) NOT NULL ,
-            `customers_cpf` VARCHAR( 64 ) NOT NULL ,
-            `hash` VARCHAR( 64 ) NOT NULL ,
-             PRIMARY KEY  (`ebanx_id`)
-             )   AUTO_INCREMENT=1 ;"
-        );
-        
+  
         //Creates states list to Brazil
         $installer = new Installer();
         $installer->stateInstaller($db);
