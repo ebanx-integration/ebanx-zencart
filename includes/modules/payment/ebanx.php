@@ -29,11 +29,6 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
-//curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, False);
-//curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, False);
-
-//error_reporting(E_ALL);
-//ini_set('display_errors', 1);
 
 require_once 'ebanx/ebanx-php-master/src/autoload.php';
 
@@ -326,12 +321,9 @@ class ebanx extends base
             $dob_info = '12/01/1987';
         }
 
-        //die("ok");
-
         //Looks for State by ID
 
         $state = $db->Execute("SELECT zone_code FROM " . TABLE_ZONES . " WHERE zone_id = " . $order->billing['zone_id'] . " LIMIT 1");
-
 
         // Creates array for sending EBANX
         $submit = array(
@@ -369,9 +361,6 @@ class ebanx extends base
         //Finally submits the order
         $response = \Ebanx\Ebanx::doRequest($submit);
 
-        var_dump($response);
-           die;
-                                     
         if ($response->status == 'SUCCESS')
         {
             $cpf = $_POST['customer_cpf'];
