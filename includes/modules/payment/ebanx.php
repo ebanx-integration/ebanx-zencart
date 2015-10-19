@@ -29,6 +29,11 @@
  * OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
+//curl_setopt($this->ch, CURLOPT_SSL_VERIFYHOST, False);
+//curl_setopt($this->ch, CURLOPT_SSL_VERIFYPEER, False);
+
+//error_reporting(E_ALL);
+//ini_set('display_errors', 1);
 
 require_once 'ebanx/ebanx-php-master/src/autoload.php';
 
@@ -288,19 +293,24 @@ class ebanx extends base
         // Creates next order ID
         $last_order_id = $db->Execute("select * from " . TABLE_ORDERS . " order by orders_id desc limit 1");
         $new_order_id = $last_order_id->fields['orders_id'];
-        $new_order_id = ($new_order_id + 1);
+        $new_order_id = ($new_order_id + 1);       
+
 
         // If has installments, adjust total
         if (isset($_POST['instalments']) &&  $_POST['instalments'] > '1')
         {
-            $interestRate = floatval(MODULE_PAYMENT_EBANX_INSTALLMENTSRATE);
-            $value = number_format((($order->info['total'] * (100 + $interestRate)) / 100.0) , 2);
+            //$interestRate = floatval(MODULE_PAYMENT_EBANX_INSTALLMENTSRATE);
+            $value = $order->info['total'];
+            $instalments = $_POST['instalments'];
+            $value = $this->calculateTotalWithInterest($value,$instalments);
         }
         else
         {
             $_POST['instalments'] = '1';
-            $value = $order->info['total'];
+            $value = ($order->info['total']);
         }
+
+
 
         // Retrieves customer's date of birth
         $dob_info = $db->Execute ("SELECT customers_dob FROM " . TABLE_CUSTOMERS . " WHERE customers_id = " . $_SESSION['customer_id'] . " LIMIT 1");
@@ -316,8 +326,12 @@ class ebanx extends base
             $dob_info = '12/01/1987';
         }
 
+        //die("ok");
+
         //Looks for State by ID
+
         $state = $db->Execute("SELECT zone_code FROM " . TABLE_ZONES . " WHERE zone_id = " . $order->billing['zone_id'] . " LIMIT 1");
+
 
         // Creates array for sending EBANX
         $submit = array(
@@ -332,7 +346,7 @@ class ebanx extends base
               ,'birth_date' => $dob_info
               ,'document'   => $_POST['customer_cpf']
               ,'city'       => $order->billing['city']
-              ,'state'      => $state->fields['zone_code']
+              ,'state'      => $state->fields['zone_code']              
               ,'zipcode'    => $order->billing['postcode']
               ,'street_number' => $streetNumber
               ,'country'    => $country
@@ -350,8 +364,13 @@ class ebanx extends base
                                 )
         );
 
+
+
         //Finally submits the order
         $response = \Ebanx\Ebanx::doRequest($submit);
+
+        var_dump($response);
+           die;
                                      
         if ($response->status == 'SUCCESS')
         {
@@ -365,6 +384,8 @@ class ebanx extends base
             zen_redirect(zen_href_link(FILENAME_CHECKOUT_PAYMENT, $payment_error_return, 'SSL', true, false));
         }
     }
+
+
 
     function after_process()
     {
@@ -460,4 +481,54 @@ class ebanx extends base
             return true;
         }
     }
+
+      protected function calculateTotalWithInterest($orderTotal, $installments)
+      {
+        switch ($installments) {
+          case '1':
+            $interest_rate = 1.20;
+            break;
+          case '2':
+            $interest_rate = 2.30;
+            break;
+          case '3':
+            $interest_rate = 3.40;
+            break;
+          case '4':
+            $interest_rate = 4.50;
+            break;
+          case '5':
+            $interest_rate = 5.60;
+            break;
+          case '6':
+            $interest_rate = 6.70;
+            break;
+          case '7':
+            $interest_rate = 7.80;
+            break;
+          case '8':
+            $interest_rate = 8.90;
+            break;
+          case '9':
+            $interest_rate = 9.10;
+            break;
+          case '10':
+            $interest_rate = 10.11;
+            break;
+          case '11':
+            $interest_rate = 11.22;
+            break;
+          case '12':
+            $interest_rate = 12.33;
+            break;
+          default:
+            # code...
+            break;
+        }
+
+         $total = (floatval($interest_rate / 100) * floatval($orderTotal) + floatval($orderTotal));
+      
+        return number_format($total, 2, ".", " ");
+      }
+
 }
