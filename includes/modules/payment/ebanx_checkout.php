@@ -182,6 +182,7 @@ class ebanx_checkout extends base
                 , 'country'           => $country
                 , 'zipcode'           => $order->billing['postcode']
                 , 'phone_number'      => $order->customer['telephone']
+                , 'plugin_source'     => 'ZenCart ver. ' . PROJECT_VERSION_MAJOR . '.' . PROJECT_VERSION_MINOR
                                           )
         ); 
 

@@ -347,6 +347,7 @@ class ebanx extends base
                   ,'card_due_date' => $_POST['cc_expires']
                   ,'card_cvv'      => $_POST['cc_cvv']
                                       )
+              , 'plugin_source'    => 'ZenCart ver. ' . PROJECT_VERSION_MAJOR . '.' . PROJECT_VERSION_MINOR
                                 )
         );
 
