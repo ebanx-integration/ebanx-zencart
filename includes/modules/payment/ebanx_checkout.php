@@ -37,7 +37,7 @@ class ebanx_checkout extends base
     var $code, $title, $description, $enabled, $payment, $checkoutURL, $status, $message;
     
     // class constructor
-    function ebanx_checkout()
+    function __construct()
     {
         global $order;
         $this->code = 'ebanx_checkout';
